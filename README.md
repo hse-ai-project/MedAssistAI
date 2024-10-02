@@ -1,7 +1,7 @@
 # Команда 58, Рекомендательная система
 
 Участники:
-- Васильев Даниил - @daniel_vasiliev, 
+- Васильев Даниил - @daniel_vasiliev, AristanD
 - Мартынов Александр - @martynovall, alexmart811
 - Черных Иван - @zzzippp, xfiniks
 - Ляпин Данила - @danila_lyapin,  Lak1n26
