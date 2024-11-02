@@ -34,4 +34,4 @@
 
 - Cholesterol Level (Уровень холестерина) - Категориальный (High, Normal, Low)
 
-Outcome Variable (Positive/Negative) - указывает на результат диагностики или оценки конкретного заболевания
+#### Outcome Variable (Positive/Negative) - указывает на результат диагностики или оценки конкретного заболевания
