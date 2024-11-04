@@ -1,0 +1,241 @@
+;vomiting;breathlessness;sweating;headache;chest_pain;dizziness;loss_of_balance;lack_of_concentration;prognosis
+100;0;0;0;1;1;1;1;1;Hypertension 
+101;0;0;0;0;1;1;1;1;Hypertension 
+102;0;0;0;1;0;1;1;1;Hypertension 
+103;0;0;0;1;1;0;1;1;Hypertension 
+104;0;0;0;1;1;1;0;1;Hypertension 
+105;0;0;0;1;1;1;1;0;Hypertension 
+106;0;0;0;1;1;1;1;1;Hypertension 
+107;0;0;0;0;1;1;1;1;Hypertension 
+108;0;0;0;1;0;1;1;1;Hypertension 
+109;0;0;0;1;1;0;1;1;Hypertension 
+290;1;1;1;0;1;0;0;0;Heart attack
+291;1;1;1;0;1;0;0;0;Heart attack
+292;0;1;1;0;1;0;0;0;Heart attack
+293;1;0;1;0;1;0;0;0;Heart attack
+294;1;1;0;0;1;0;0;0;Heart attack
+295;1;1;1;0;0;0;0;0;Heart attack
+296;1;1;1;0;1;0;0;0;Heart attack
+297;0;1;1;0;1;0;0;0;Heart attack
+298;1;0;1;0;1;0;0;0;Heart attack
+299;1;1;0;0;1;0;0;0;Heart attack
+510;0;0;0;1;1;1;1;1;Hypertension 
+511;0;0;0;0;1;1;1;1;Hypertension 
+512;0;0;0;1;0;1;1;1;Hypertension 
+513;0;0;0;1;1;0;1;1;Hypertension 
+514;0;0;0;1;1;1;0;1;Hypertension 
+515;0;0;0;1;1;1;1;0;Hypertension 
+516;0;0;0;1;1;1;1;1;Hypertension 
+517;0;0;0;0;1;1;1;1;Hypertension 
+518;0;0;0;1;0;1;1;1;Hypertension 
+519;0;0;0;1;1;0;1;1;Hypertension 
+700;1;1;1;0;1;0;0;0;Heart attack
+701;1;1;1;0;1;0;0;0;Heart attack
+702;0;1;1;0;1;0;0;0;Heart attack
+703;1;0;1;0;1;0;0;0;Heart attack
+704;1;1;0;0;1;0;0;0;Heart attack
+705;1;1;1;0;0;0;0;0;Heart attack
+706;1;1;1;0;1;0;0;0;Heart attack
+707;0;1;1;0;1;0;0;0;Heart attack
+708;1;0;1;0;1;0;0;0;Heart attack
+709;1;1;0;0;1;0;0;0;Heart attack
+920;0;0;0;1;1;1;1;1;Hypertension 
+921;0;0;0;0;1;1;1;1;Hypertension 
+922;0;0;0;1;0;1;1;1;Hypertension 
+923;0;0;0;1;1;0;1;1;Hypertension 
+924;0;0;0;1;1;1;0;1;Hypertension 
+925;0;0;0;1;1;1;1;0;Hypertension 
+926;0;0;0;1;1;1;1;1;Hypertension 
+927;0;0;0;0;1;1;1;1;Hypertension 
+928;0;0;0;1;0;1;1;1;Hypertension 
+929;0;0;0;1;1;0;1;1;Hypertension 
+1110;1;1;1;0;1;0;0;0;Heart attack
+1111;1;1;1;0;1;0;0;0;Heart attack
+1112;0;1;1;0;1;0;0;0;Heart attack
+1113;1;0;1;0;1;0;0;0;Heart attack
+1114;1;1;0;0;1;0;0;0;Heart attack
+1115;1;1;1;0;0;0;0;0;Heart attack
+1116;1;1;1;0;1;0;0;0;Heart attack
+1117;0;1;1;0;1;0;0;0;Heart attack
+1118;1;0;1;0;1;0;0;0;Heart attack
+1119;1;1;0;0;1;0;0;0;Heart attack
+1330;0;0;0;1;1;1;1;1;Hypertension 
+1331;0;0;0;0;1;1;1;1;Hypertension 
+1332;0;0;0;1;0;1;1;1;Hypertension 
+1333;0;0;0;1;1;0;1;1;Hypertension 
+1334;0;0;0;1;1;1;0;1;Hypertension 
+1335;0;0;0;1;1;1;1;0;Hypertension 
+1336;0;0;0;1;1;1;1;1;Hypertension 
+1337;0;0;0;0;1;1;1;1;Hypertension 
+1338;0;0;0;1;0;1;1;1;Hypertension 
+1339;0;0;0;1;1;0;1;1;Hypertension 
+1520;1;1;1;0;1;0;0;0;Heart attack
+1521;1;1;1;0;1;0;0;0;Heart attack
+1522;0;1;1;0;1;0;0;0;Heart attack
+1523;1;0;1;0;1;0;0;0;Heart attack
+1524;1;1;0;0;1;0;0;0;Heart attack
+1525;1;1;1;0;0;0;0;0;Heart attack
+1526;1;1;1;0;1;0;0;0;Heart attack
+1527;0;1;1;0;1;0;0;0;Heart attack
+1528;1;0;1;0;1;0;0;0;Heart attack
+1529;1;1;0;0;1;0;0;0;Heart attack
+1740;0;0;0;1;1;1;1;1;Hypertension 
+1741;0;0;0;0;1;1;1;1;Hypertension 
+1742;0;0;0;1;0;1;1;1;Hypertension 
+1743;0;0;0;1;1;0;1;1;Hypertension 
+1744;0;0;0;1;1;1;0;1;Hypertension 
+1745;0;0;0;1;1;1;1;0;Hypertension 
+1746;0;0;0;1;1;1;1;1;Hypertension 
+1747;0;0;0;0;1;1;1;1;Hypertension 
+1748;0;0;0;1;0;1;1;1;Hypertension 
+1749;0;0;0;1;1;0;1;1;Hypertension 
+1930;1;1;1;0;1;0;0;0;Heart attack
+1931;1;1;1;0;1;0;0;0;Heart attack
+1932;0;1;1;0;1;0;0;0;Heart attack
+1933;1;0;1;0;1;0;0;0;Heart attack
+1934;1;1;0;0;1;0;0;0;Heart attack
+1935;1;1;1;0;0;0;0;0;Heart attack
+1936;1;1;1;0;1;0;0;0;Heart attack
+1937;0;1;1;0;1;0;0;0;Heart attack
+1938;1;0;1;0;1;0;0;0;Heart attack
+1939;1;1;0;0;1;0;0;0;Heart attack
+2150;0;0;0;1;1;1;1;1;Hypertension 
+2151;0;0;0;0;1;1;1;1;Hypertension 
+2152;0;0;0;1;0;1;1;1;Hypertension 
+2153;0;0;0;1;1;0;1;1;Hypertension 
+2154;0;0;0;1;1;1;0;1;Hypertension 
+2155;0;0;0;1;1;1;1;0;Hypertension 
+2156;0;0;0;1;1;1;1;1;Hypertension 
+2157;0;0;0;0;1;1;1;1;Hypertension 
+2158;0;0;0;1;0;1;1;1;Hypertension 
+2159;0;0;0;1;1;0;1;1;Hypertension 
+2340;1;1;1;0;1;0;0;0;Heart attack
+2341;1;1;1;0;1;0;0;0;Heart attack
+2342;0;1;1;0;1;0;0;0;Heart attack
+2343;1;0;1;0;1;0;0;0;Heart attack
+2344;1;1;0;0;1;0;0;0;Heart attack
+2345;1;1;1;0;0;0;0;0;Heart attack
+2346;1;1;1;0;1;0;0;0;Heart attack
+2347;0;1;1;0;1;0;0;0;Heart attack
+2348;1;0;1;0;1;0;0;0;Heart attack
+2349;1;1;0;0;1;0;0;0;Heart attack
+2470;0;0;0;1;1;1;1;1;Hypertension 
+2489;1;1;1;0;1;0;0;0;Heart attack
+2511;0;0;0;1;1;1;1;1;Hypertension 
+2530;1;1;1;0;1;0;0;0;Heart attack
+2552;0;0;0;1;1;1;1;1;Hypertension 
+2571;1;1;1;0;1;0;0;0;Heart attack
+2593;0;0;0;1;1;1;1;1;Hypertension 
+2612;1;1;1;0;1;0;0;0;Heart attack
+2634;0;0;0;1;1;1;1;1;Hypertension 
+2653;1;1;1;0;1;0;0;0;Heart attack
+2675;0;0;0;1;1;1;1;1;Hypertension 
+2694;1;1;1;0;1;0;0;0;Heart attack
+2716;0;0;0;1;1;1;1;1;Hypertension 
+2735;1;1;1;0;1;0;0;0;Heart attack
+2757;0;0;0;1;1;1;1;1;Hypertension 
+2776;1;1;1;0;1;0;0;0;Heart attack
+2798;0;0;0;1;1;1;1;1;Hypertension 
+2817;1;1;1;0;1;0;0;0;Heart attack
+2839;0;0;0;1;1;1;1;1;Hypertension 
+2858;1;1;1;0;1;0;0;0;Heart attack
+2880;0;0;0;1;1;1;1;1;Hypertension 
+2899;1;1;1;0;1;0;0;0;Heart attack
+2921;0;0;0;1;1;1;1;1;Hypertension 
+2940;1;1;1;0;1;0;0;0;Heart attack
+2962;0;0;0;1;1;1;1;1;Hypertension 
+2981;1;1;1;0;1;0;0;0;Heart attack
+3003;0;0;0;1;1;1;1;1;Hypertension 
+3022;1;1;1;0;1;0;0;0;Heart attack
+3044;0;0;0;1;1;1;1;1;Hypertension 
+3063;1;1;1;0;1;0;0;0;Heart attack
+3085;0;0;0;1;1;1;1;1;Hypertension 
+3104;1;1;1;0;1;0;0;0;Heart attack
+3126;0;0;0;1;1;1;1;1;Hypertension 
+3145;1;1;1;0;1;0;0;0;Heart attack
+3167;0;0;0;1;1;1;1;1;Hypertension 
+3186;1;1;1;0;1;0;0;0;Heart attack
+3208;0;0;0;1;1;1;1;1;Hypertension 
+3227;1;1;1;0;1;0;0;0;Heart attack
+3249;0;0;0;1;1;1;1;1;Hypertension 
+3268;1;1;1;0;1;0;0;0;Heart attack
+3290;0;0;0;1;1;1;1;1;Hypertension 
+3309;1;1;1;0;1;0;0;0;Heart attack
+3331;0;0;0;1;1;1;1;1;Hypertension 
+3350;1;1;1;0;1;0;0;0;Heart attack
+3372;0;0;0;1;1;1;1;1;Hypertension 
+3391;1;1;1;0;1;0;0;0;Heart attack
+3413;0;0;0;1;1;1;1;1;Hypertension 
+3432;1;1;1;0;1;0;0;0;Heart attack
+3454;0;0;0;1;1;1;1;1;Hypertension 
+3473;1;1;1;0;1;0;0;0;Heart attack
+3495;0;0;0;1;1;1;1;1;Hypertension 
+3514;1;1;1;0;1;0;0;0;Heart attack
+3536;0;0;0;1;1;1;1;1;Hypertension 
+3555;1;1;1;0;1;0;0;0;Heart attack
+3577;0;0;0;1;1;1;1;1;Hypertension 
+3596;1;1;1;0;1;0;0;0;Heart attack
+3618;0;0;0;1;1;1;1;1;Hypertension 
+3637;1;1;1;0;1;0;0;0;Heart attack
+3659;0;0;0;1;1;1;1;1;Hypertension 
+3678;1;1;1;0;1;0;0;0;Heart attack
+3700;0;0;0;1;1;1;1;1;Hypertension 
+3719;1;1;1;0;1;0;0;0;Heart attack
+3741;0;0;0;1;1;1;1;1;Hypertension 
+3760;1;1;1;0;1;0;0;0;Heart attack
+3782;0;0;0;1;1;1;1;1;Hypertension 
+3801;1;1;1;0;1;0;0;0;Heart attack
+3823;0;0;0;1;1;1;1;1;Hypertension 
+3842;1;1;1;0;1;0;0;0;Heart attack
+3864;0;0;0;1;1;1;1;1;Hypertension 
+3883;1;1;1;0;1;0;0;0;Heart attack
+3905;0;0;0;1;1;1;1;1;Hypertension 
+3924;1;1;1;0;1;0;0;0;Heart attack
+3946;0;0;0;1;1;1;1;1;Hypertension 
+3965;1;1;1;0;1;0;0;0;Heart attack
+3987;0;0;0;1;1;1;1;1;Hypertension 
+4006;1;1;1;0;1;0;0;0;Heart attack
+4028;0;0;0;1;1;1;1;1;Hypertension 
+4047;1;1;1;0;1;0;0;0;Heart attack
+4069;0;0;0;1;1;1;1;1;Hypertension 
+4088;1;1;1;0;1;0;0;0;Heart attack
+4110;0;0;0;1;1;1;1;1;Hypertension 
+4129;1;1;1;0;1;0;0;0;Heart attack
+4151;0;0;0;1;1;1;1;1;Hypertension 
+4170;1;1;1;0;1;0;0;0;Heart attack
+4192;0;0;0;1;1;1;1;1;Hypertension 
+4211;1;1;1;0;1;0;0;0;Heart attack
+4233;0;0;0;1;1;1;1;1;Hypertension 
+4252;1;1;1;0;1;0;0;0;Heart attack
+4274;0;0;0;1;1;1;1;1;Hypertension 
+4293;1;1;1;0;1;0;0;0;Heart attack
+4315;0;0;0;1;1;1;1;1;Hypertension 
+4334;1;1;1;0;1;0;0;0;Heart attack
+4356;0;0;0;1;1;1;1;1;Hypertension 
+4375;1;1;1;0;1;0;0;0;Heart attack
+4397;0;0;0;1;1;1;1;1;Hypertension 
+4416;1;1;1;0;1;0;0;0;Heart attack
+4438;0;0;0;1;1;1;1;1;Hypertension 
+4457;1;1;1;0;1;0;0;0;Heart attack
+4479;0;0;0;1;1;1;1;1;Hypertension 
+4498;1;1;1;0;1;0;0;0;Heart attack
+4520;0;0;0;1;1;1;1;1;Hypertension 
+4539;1;1;1;0;1;0;0;0;Heart attack
+4561;0;0;0;1;1;1;1;1;Hypertension 
+4580;1;1;1;0;1;0;0;0;Heart attack
+4602;0;0;0;1;1;1;1;1;Hypertension 
+4621;1;1;1;0;1;0;0;0;Heart attack
+4643;0;0;0;1;1;1;1;1;Hypertension 
+4662;1;1;1;0;1;0;0;0;Heart attack
+4684;0;0;0;1;1;1;1;1;Hypertension 
+4703;1;1;1;0;1;0;0;0;Heart attack
+4725;0;0;0;1;1;1;1;1;Hypertension 
+4744;1;1;1;0;1;0;0;0;Heart attack
+4766;0;0;0;1;1;1;1;1;Hypertension 
+4785;1;1;1;0;1;0;0;0;Heart attack
+4807;0;0;0;1;1;1;1;1;Hypertension 
+4826;1;1;1;0;1;0;0;0;Heart attack
+4848;0;0;0;1;1;1;1;1;Hypertension 
+4867;1;1;1;0;1;0;0;0;Heart attack
+4889;0;0;0;1;1;1;1;1;Hypertension 
+4908;1;1;1;0;1;0;0;0;Heart attack
