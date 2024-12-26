@@ -34,4 +34,4 @@ async def info_out() -> InfoResponse:
 app.include_router(router, prefix='/model')
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="127.0.0.1", port=80)
+    uvicorn.run(app, host="127.0.0.1", port=8000)
