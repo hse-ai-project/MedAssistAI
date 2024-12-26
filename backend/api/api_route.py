@@ -36,7 +36,7 @@ class RestingElectrocardiographic(Enum):
     SELECT3 = "Демонстрация вероятной или определенной гипертрофии левого желудочка по критериям Эстеса"
 
 
-class ExerciseAngina:
+class ExerciseAngina(Enum):
     "Имеется стенокардия, вызванная физической нагрузкой"
     NO = "Нет"
     YES = "Да"
@@ -103,23 +103,15 @@ class PatientData(BaseModel):
     active: Active
 
 
-class Verdict(Enum):
-    SICK = "Болен"
-    HEALTH = "Здоров"
-
-
-class PatientPredict(BaseModel):
-    verdict: Verdict
-
-
 # API endpoints
-@router.post("/predict", response_model=List[PatientPredict])
-async def predict(patients: List[PatientData]) -> List[PatientPredict]:
+@router.post("/predict", response_model=List[int])
+async def predict(patients: List[PatientData]) -> List[int]:
     "Предсказание болен ли пациент или нет"
+    print(patients)
     for patient in patients:
         # some func here
         pass
-    return [PatientPredict(verdict="Болен"), PatientPredict(verdict="Здоров")]
+    return [1, 0]
 
 
 @router.post("/predict_proba", response_model=List[float])

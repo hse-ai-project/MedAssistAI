@@ -2,7 +2,7 @@ import uvicorn
 from fastapi import FastAPI
 from pydantic import BaseModel
 
-from backend.api.api_route import router
+from api.api_route import router
 
 app = FastAPI(title="MedAssistAI")
 
@@ -34,4 +34,4 @@ async def info_out() -> InfoResponse:
 app.include_router(router, prefix='/model')
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="127.0.0.1", port=80, reload=True)
+    uvicorn.run(app, host="127.0.0.1", port=80)

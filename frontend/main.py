@@ -17,10 +17,11 @@ def process_main_page():
     image = Image.open('data/ded.jpg')
     st.image(image)
     data = process_side_bar_inputs()
+    print(data)
     if st.button("Предсказать"):
         # ручка /predict
         try:
-            prediction = requests.post("http://localhost:8000/predict", json=data)
+            prediction = requests.post("http://fastapi:8000/model/predict", json=data).text
         except Exception as err:
             prediction = 'Не удалось выполнить запрос к API'
 
@@ -34,7 +35,7 @@ def process_main_page():
     if st.button("Предсказать вероятности"):
         # ручка /predict_proba
         try:
-            prediction_probs = requests.post("http://localhost:8000/predict_proba", json=data)
+            prediction_probs = requests.post("http://fastapi:8000/model/predict_proba", json=data)
         except Exception as err:
             prediction_probs = 'Не удалось выполнить запрос к API'
         write_prediction_proba(prediction_probs)
@@ -42,7 +43,7 @@ def process_main_page():
     if st.button("Метрики качества модели"):
         # ручка /metrics
         try:
-            metrics = requests.get('http://localhost:8000/metrics')
+            metrics = requests.get('http://fastapi:8000/model/metrics')
         except Exception as err:
             metrics = ['Не удалось выполнить запрос к API']
         write_metrics(metrics)
@@ -50,9 +51,11 @@ def process_main_page():
     if st.button("Участники проекта"):
         # ручка /participants
         try:
-            participants = requests.get('http://localhost:8000/participants')
+            participants = requests.get('http://fastapi:8000/participants')
+            participants = participants.json()['status']
         except:
             participants = 'Не удалось выполнить запрос к API'
+        
         write_participants(participants)
 
 
@@ -78,7 +81,7 @@ def write_participants(participants):
 def process_side_bar_inputs():
     st.sidebar.header('Данные о пациенте (пациентах)')
     user_input_df = sidebar_input_features()
-    data = [row.to_json() for _, row in user_input_df.iterrows()]
+    data = [row.to_dict() for _, row in user_input_df.iterrows()]
     st.write("## Ваши данные")
     st.table(user_input_df)
     return data
