@@ -1,9 +1,13 @@
 from typing import List, Dict, Union
-
 from fastapi import APIRouter
-
 from pydantic import BaseModel, Field
 from enum import Enum
+import joblib
+import numpy as np
+import sys
+sys.path.append('..\\service\\models')
+from models import HeartDataImputer, HeartBasedPredictor, CardioTrainBasePredictor, PredictorComposer
+
 
 router = APIRouter()
 
@@ -117,23 +121,21 @@ class PatientData(BaseModel):
 @router.post("/predict", response_model=List[int])
 async def predict(patients: List[PatientData]) -> List[int]:
     "Предсказание болен ли пациент или нет"
+    model = joblib.load('PipelineInstance.pickle')
     for patient in patients:
-        # some func here
-        pass
-    return [1, 0]
+        return model.predict(patient).astype(int)
 
 
 @router.post("/predict_proba", response_model=List[float])
 async def predict(patients: List[PatientData]) -> List[float]:
     "Предсказание вероятности заболевания"
+    model = joblib.load('PipelineInstance.pickle')
     for patient in patients:
-        # some func here
-        pass
-    return [0.8, 0.4]
+        return model.predict(patient)
 
 
-@router.get("/metrics", response_model=Dict[str, Union[int, float]])
-async def predict() -> Dict[str, Union[int, float]]:
-    "Получение метрик, получившихся во время обучения моделей"
+#@router.get("/metrics", response_model=Dict[str, Union[int, float]])
+#async def predict() -> Dict[str, Union[int, float]]:
+#    "Получение метрик, получившихся во время обучения моделей"
     # some func here
-    return {"roc-auc": 0.5, "accuracy": 0.7}
+#    return {"roc-auc": 0.5, "accuracy": 0.7}
