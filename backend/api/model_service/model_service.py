@@ -1,15 +1,15 @@
 from fastapi import HTTPException
-from typing import List, Dict
+from typing import List, Dict, Any
 import pickle
 import multiprocessing
 from datetime import datetime
 import pandas as pd
-from model.model import *
+from api.model.model import *
 
-def train_model(hyperparameters: Dict[str, any], train_data: TrainData, queue: multiprocessing.Queue):
+def train_model(hyperparameters: Dict[str, Any], train_data: TrainData, queue: multiprocessing.Queue):
     """Training function to run in separate process"""
     try:
-        with open('model.pkl', 'rb') as f:
+        with open('api/model_service/model.pickle', 'rb') as f:
             model = pickle.load(f)
             
         X_train = train_data.features
@@ -33,7 +33,7 @@ class ModelService:
     def load_initial_model(self):
         """Load pre-trained model on startup"""
         try:
-            with open('model.pkl', 'rb') as f:
+            with open('api/model_service/model.pickle', 'rb') as f:
                 model = pickle.load(f)
             
             model_info = ModelInfo(
@@ -53,7 +53,7 @@ class ModelService:
         except Exception as e:
             print(f"Error loading initial model: {e}")
 
-    def fit_model(self, model_id: str, hyperparameters: Dict[str, any], 
+    def fit_model(self, model_id: str, hyperparameters: Dict[str, Any], 
                  train_data: TrainData, timeout: int = 10) -> FitResponse:
         """Fit model with timeout"""
         ctx = multiprocessing.get_context('spawn')

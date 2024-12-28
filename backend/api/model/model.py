@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field
-from typing import List, Dict, Optional, Enum
+from typing import List, Dict, Optional, Any
+from enum import Enum
 from datetime import datetime
 
 class Sex(int, Enum):
@@ -92,19 +93,19 @@ class ModelInfo(BaseModel):
     id: str
     created_at: datetime
     is_active: bool
-    parameters: Optional[Dict[str, any]] = None
+    parameters: Optional[Dict[str, Any]] = None
 
 class ModelsResponse(BaseModel):
     models: List[ModelInfo]
     active_model_id: Optional[str]
 
 class TrainData(BaseModel):
-    features: Dict[str, List[any]]
+    features: Dict[str, List[Any]]
     target: List[int]
 
 class FitRequest(BaseModel):
     id: str
-    hyperparameters: Dict[str, any]
+    hyperparameters: Dict[str, Any]
     train_data: TrainData
     timeout: Optional[int] = 10
 

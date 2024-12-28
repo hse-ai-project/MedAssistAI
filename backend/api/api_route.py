@@ -1,7 +1,7 @@
 from fastapi import APIRouter
-from model_classes.model_classes import *
-from model.model import *
-from model_service.model_service import ModelService
+from api.model_classes.model_classes import *
+from api.model.model import *
+from api.model_service.model_service import ModelService
 
 
 router = APIRouter()

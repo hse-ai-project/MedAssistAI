@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from typing import List, Dict
+from typing import List, Dict, Any
 from sklearn.impute import SimpleImputer
 
 class HeartDataImputer:
@@ -18,12 +18,12 @@ class HeartDataImputer:
         self.is_fitted = False
 
 
-    def fit(self, data: Dict[str, List[any]]):
+    def fit(self, data: Dict[str, List[Any]]):
         """
         Обучает импутеры на тренировочных данных
 
         Parameters:
-        data (Dict[str, List[any]]): Тренировочные данные
+        data (Dict[str, List[Any]]): Тренировочные данные
         """
 
         required_columns = self.features['numeric'] + self.features['categorical']
@@ -107,7 +107,7 @@ class HeartBasedPredictor:
 
         return X
     
-    def fit(self, X: Dict[str, List[any]], y: np.array):
+    def fit(self, X: Dict[str, List[Any]], y: np.array):
         """Обучение модели на выбранных признаках"""
         features_dict = self.select_features(X)
         X_processed = self.preprocess(features_dict)
@@ -158,7 +158,7 @@ class CardioTrainBasePredictor:
                 self.X[col] = self.X_NaN_dict.get(col)
         return self.X
     
-    def fit(self, X: Dict[str, List[any]], y: List[int]):
+    def fit(self, X: Dict[str, List[Any]], y: List[int]):
         """Обучение модели"""
         df = pd.DataFrame(X)
         self.model.fit(df, y)
@@ -183,13 +183,13 @@ class PredictorComposer:
         self.heart_based_predictor = heart_based_predictor
         self.cardio_train_based_predictor = cardio_train_based_predictor
 
-    def fit(self, X: Dict[str, List[any]], y: List[int]):
+    def fit(self, X: Dict[str, List[Any]], y: List[int]):
         """Обучение обеих моделей"""
         self.heart_based_predictor.fit(self.select_heart_based_features(X), y)
         self.cardio_train_based_predictor.fit(self.select_cardio_train_based_features(X), y)
         return self
     
-    def set_parameters(self, params: Dict[str, any]):
+    def set_parameters(self, params: Dict[str, Any]):
         """Установка параметров для обеих моделей"""
         if 'heart_based' in params:
             self.heart_based_predictor.model.set_params(**params['heart_based'])
