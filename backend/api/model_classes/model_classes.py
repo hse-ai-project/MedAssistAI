@@ -1,13 +1,7 @@
 import pandas as pd
 import numpy as np
-from sklearn.preprocessing import StandardScaler
-from sklearn.linear_model import LogisticRegression
+from typing import List, Dict
 from sklearn.impute import SimpleImputer
-from xgboost import XGBClassifier
-import joblib
-import warnings
-warnings.filterwarnings('ignore')
-
 
 class HeartDataImputer:
     """Класс для заполнения пропусков для модели Heart"""
@@ -24,12 +18,12 @@ class HeartDataImputer:
         self.is_fitted = False
 
 
-    def fit(self, data: pd.DataFrame):
+    def fit(self, data: Dict[str, List[any]]):
         """
         Обучает импутеры на тренировочных данных
 
         Parameters:
-        data (pd.DataFrame): Тренировочные данные
+        data (Dict[str, List[any]]): Тренировочные данные
         """
 
         required_columns = self.features['numeric'] + self.features['categorical']
@@ -112,6 +106,13 @@ class HeartBasedPredictor:
         X[:, numerical_indices] = self.scaler.transform(X[:, numerical_indices])
 
         return X
+    
+    def fit(self, X: Dict[str, List[any]], y: np.array):
+        """Обучение модели на выбранных признаках"""
+        features_dict = self.select_features(X)
+        X_processed = self.preprocess(features_dict)
+        self.model.fit(X_processed, y)
+        return self
 
 
     def predict(self, features):
@@ -156,7 +157,12 @@ class CardioTrainBasePredictor:
             if (self.X[col].isna().sum() > 0) and (self.X_NaN_dict.get(col) != None):
                 self.X[col] = self.X_NaN_dict.get(col)
         return self.X
-
+    
+    def fit(self, X: Dict[str, List[any]], y: List[int]):
+        """Обучение модели"""
+        df = pd.DataFrame(X)
+        self.model.fit(df, y)
+        return self
 
     def predict(self, X):
         """Функция получения предсказаний из обработанного массива данных.
@@ -177,39 +183,35 @@ class PredictorComposer:
         self.heart_based_predictor = heart_based_predictor
         self.cardio_train_based_predictor = cardio_train_based_predictor
 
+    def fit(self, X: Dict[str, List[any]], y: List[int]):
+        """Обучение обеих моделей"""
+        self.heart_based_predictor.fit(self.select_heart_based_features(X), y)
+        self.cardio_train_based_predictor.fit(self.select_cardio_train_based_features(X), y)
+        return self
+    
+    def set_parameters(self, params: Dict[str, any]):
+        """Установка параметров для обеих моделей"""
+        if 'heart_based' in params:
+            self.heart_based_predictor.model.set_params(**params['heart_based'])
+        if 'cardio_based' in params:
+            self.cardio_train_based_predictor.model.set_params(**params['cardio_based'])
 
-    def select_heart_based_features(self, all_features) -> dict:
-        return {
-            'Age': all_features['Age'],
-            'Sex': all_features['Sex'],
-            'CheastPainType': all_features['CheastPainType'],
-            'RestingBP': all_features['RestingBP'],
-            'Cholesterol': all_features['Cholesterol'],
-            'FastingBS': all_features['FastingBS'],
-            'RestingECG': all_features['RestingECG'],
-            'MaxHR': all_features['MaxHR'],
-            'ExerciseAngina': all_features['ExerciseAngina'],
-            'Oldpeak': all_features['Oldpeak'],
-            'ST_Slope': all_features['ST_Slope'],
-            'NumMajorVessels': all_features['NumMajorVessels'],
-            'Thal': all_features['Thal']
-        }
+    def select_heart_based_features(self, X) -> dict:
+        features = [
+            'Age', 'Sex', 'CheastPainType', 'RestingBP', 'Cholesterol',
+            'FastingBS', 'RestingECG', 'MaxHR', 'ExerciseAngina', 'Oldpeak',
+            'ST_Slope', 'NumMajorVessels', 'Thal'
+        ]
 
+        return {feature: X[feature] for feature in features}
 
-    def select_cardio_train_based_features(self, all_features) -> dict:
-        return {
-            'age': all_features['age'],
-            'gender': all_features['gender'],
-            'height': all_features['height'],
-            'weight': all_features['weight'],
-            'ap_hi': all_features['ap_hi'],
-            'ap_lo': all_features['ap_lo'],
-            'cholesterol': all_features['cholesterol'],
-            'gluc': all_features['gluc'],
-            'smoke': all_features['smoke'],
-            'alco': all_features['alco'],
-            'active': all_features['active']
-        }
+    def select_cardio_train_based_features(self, X) -> dict:
+        features = [
+            'age', 'gender', 'height', 'weight', 'ap_hi', 'ap_lo',
+            'cholesterol', 'gluc', 'smoke', 'alco', 'active'
+        ]
+
+        return {feature: X[feature] for feature in features}
 
 
     def predict(self, all_features):

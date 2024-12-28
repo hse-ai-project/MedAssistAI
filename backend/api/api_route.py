@@ -1,141 +1,61 @@
-from typing import List, Dict, Union
 from fastapi import APIRouter
-from pydantic import BaseModel, Field
-from enum import Enum
-import joblib
-import numpy as np
-import sys
-sys.path.append('..\\service\\models')
-from models import HeartDataImputer, HeartBasedPredictor, CardioTrainBasePredictor, PredictorComposer
+from model_classes.model_classes import *
+from model.model import *
+from model_service.model_service import ModelService
 
 
 router = APIRouter()
+model_service = ModelService()
 
+@router.post("/fit", response_model=FitResponse)
+async def fit(request: FitRequest):
+    """
+    Обучение новой модели
+    
+    Args:
+        request: FitRequest с id, гиперпараметрами и тренировочными данными
+    """
+    return model_service.fit_model(
+        request.id,
+        request.hyperparameters, 
+        request.train_data, 
+        request.timeout
+    )
 
-# Имплементация полей объектов
-class Sex(Enum):
-    "Пол"
-    MALE = "Мужской"
-    FEMALE = "Женский"
-    UNKNOWN = "Не могу сказать точно"
+@router.post("/predict", response_model=PredictResponse)
+async def predict(data: PatientData):
+    """
+    Получение предсказания от активной модели
+    
+    Args:
+        data: Данные пациента для предсказания
+    """
+    return model_service.predict(data)
 
+@router.get("/models", response_model=ModelsResponse)
+async def get_models():
+    """
+    Получение списка всех доступных моделей и информации о них
+    """
+    return model_service.get_models()
 
-class ChestPainType(Enum):
-    "Тип боли в груди"
-    SELECT1 = "Бессимптомный"
-    SELECT2 = "Типичная стенокардия"
-    SELECT3 = "Атипичная стенокардия"
-    SELECT4 = "Неангинозная боль"
-    UNKNOWN = "Не могу сказать точно"
+@router.post("/set_model", response_model=SetModelResponse)
+async def set_model(request: SetModelRequest):
+    """
+    Установка активной модели по id
+    
+    Args:
+        request: SetModelRequest с id модели для активации
+    """
+    return model_service.set_active_model(request.model_id)
 
-
-class FastingBloodSugar(Enum):
-    "Уровень сахара в крови натощак меньше 120 mg/d"
-    NO = "Нет"
-    YES = "Да"
-    UNKNOWN = "Не могу сказать точно"
-
-
-class RestingElectrocardiographic(Enum):
-    "Результаты электрокардиографии в состоянии покоя"
-    SELECT1 = "Норма"
-    SELECT2 = "Наличие аномалии зубца ST-T (инверсия зубца T и/или подъем или снижение ST > 0,05 мВ)"
-    SELECT3 = "Демонстрация вероятной или определенной гипертрофии левого желудочка по критериям Эстеса"
-    UNKNOWN = "Не могу сказать точно"
-
-
-class ExerciseAngina(Enum):
-    "Имеется стенокардия, вызванная физической нагрузкой"
-    NO = "Нет"
-    YES = "Да"
-    UNKNOWN = "Не могу сказать точно"
-
-
-class ST_Slope(Enum):
-    "Наклон сегмента ST при пиковой нагрузке"
-    SELECT1 = "Плоский"
-    SELECT2 = "Восходящий"
-    SELECT3 = "Нисходящий"
-    UNKNOWN = "Не могу сказать точно"
-
-
-class Thal(Enum):
-    "Таллиевый стресс-тест"
-    SELECT1 = "Норма"
-    SELECT2 = "Ошибка"
-    SELECT3 = "Фиксированный дефект"
-    SELECT4 = "Обратимый дефект"
-    UNKNOWN = "Не могу сказать точно"
-
-
-class Smoke(Enum):
-    "Курите"
-    NO = "Нет"
-    YES = "Да"
-    UNKNOWN = "Не могу сказать точно"
-
-
-class Alco(Enum):
-    "Употребляете алкоголь"
-    NO = "Нет"
-    YES = "Да"
-    UNKNOWN = "Не могу сказать точно"
-
-
-class Active(Enum):
-    "Занимаетесь физической активностью"
-    NO = "Нет"
-    YES = "Да"
-    UNKNOWN = "Не могу сказать точно"
-
-
-class PatientData(BaseModel):
-    # фичи Вани
-    Age: int = Field(gt=0)
-    Sex: Sex
-    CheastPainType: ChestPainType
-    RestingBP: int
-    Cholesterol: int
-    FastingBS: FastingBloodSugar
-    RestingECG: RestingElectrocardiographic
-    MaxHR: int
-    ExerciseAngina: ExerciseAngina
-    Oldpeak: int
-    ST_Slope: ST_Slope
-    NumMajorVessels: int
-    Thal: Thal
-
-    # фичи Дани
-    height: int = Field(gt=0)
-    weight: int = Field(gt=0)
-    ap_hi: int
-    ap_lo: int
-    cholesterol: int
-    gluc: int
-    smoke: Smoke
-    alco: Alco
-    active: Active
-
-
-# API endpoints
-@router.post("/predict", response_model=List[int])
-async def predict(patients: List[PatientData]) -> List[int]:
-    "Предсказание болен ли пациент или нет"
-    model = joblib.load('PipelineInstance.pickle')
-    for patient in patients:
-        return model.predict(patient).astype(int)
-
-
-@router.post("/predict_proba", response_model=List[float])
-async def predict(patients: List[PatientData]) -> List[float]:
-    "Предсказание вероятности заболевания"
-    model = joblib.load('PipelineInstance.pickle')
-    for patient in patients:
-        return model.predict(patient)
-
-
-#@router.get("/metrics", response_model=Dict[str, Union[int, float]])
-#async def predict() -> Dict[str, Union[int, float]]:
-#    "Получение метрик, получившихся во время обучения моделей"
-    # some func here
-#    return {"roc-auc": 0.5, "accuracy": 0.7}
+@router.post("/update_model/{model_id}", response_model=FitResponse)
+async def update_model(model_id: str, train_data: TrainData):
+    """
+    Обновление существующей модели новыми данными
+    
+    Args:
+        model_id: ID модели для обновления
+        train_data: Новые тренировочные данные
+    """
+    return model_service.update_model(model_id, train_data)
