@@ -15,22 +15,16 @@ async def fit(request: FitRequest):
     Args:
         request: FitRequest с id, гиперпараметрами и тренировочными данными
     """
-    return model_service.fit_model(
+    return await model_service.fit_model(
         request.id,
-        request.hyperparameters, 
-        request.train_data, 
+        request.hyperparameters,
+        request.train_data,
         request.timeout
     )
 
-@router.post("/predict", response_model=PredictResponse)
-async def predict(data: PatientData):
-    """
-    Получение предсказания от активной модели
-    
-    Args:
-        data: Данные пациента для предсказания
-    """
-    return model_service.predict(data)
+@router.post("/predict", response_model=BatchPredictResponse)
+async def predict(data: BatchPredictRequest) -> BatchPredictResponse:
+    return model_service.predict_batch(data.patients)
 
 @router.get("/models", response_model=ModelsResponse)
 async def get_models():

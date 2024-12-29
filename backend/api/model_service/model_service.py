@@ -4,6 +4,8 @@ import pickle
 import multiprocessing
 from datetime import datetime
 import pandas as pd
+from concurrent.futures import ProcessPoolExecutor
+import asyncio
 from api.model.model import *
 
 def train_model(hyperparameters: Dict[str, Any], train_data: TrainData, queue: multiprocessing.Queue):
@@ -25,9 +27,10 @@ def train_model(hyperparameters: Dict[str, Any], train_data: TrainData, queue: m
         queue.put(e)
 
 class ModelService:
-    def __init__(self):
+    def __init__(self, max_workers: int = 3):
         self.models = {}
         self.active_model_id = None
+        self.executor = ProcessPoolExecutor(max_workers=max_workers)
         self.load_initial_model()
 
     def load_initial_model(self):
@@ -53,73 +56,76 @@ class ModelService:
         except Exception as e:
             print(f"Error loading initial model: {e}")
 
-    def fit_model(self, model_id: str, hyperparameters: Dict[str, Any], 
+    async def fit_model(self, model_id: str, hyperparameters: Dict[str, Any], 
                  train_data: TrainData, timeout: int = 10) -> FitResponse:
         """Fit model with timeout"""
-        ctx = multiprocessing.get_context('spawn')
-        queue = ctx.Queue()
-        process = ctx.Process(
-            target=train_model, 
-            args=(hyperparameters, train_data, queue)
-        )
-        
-        process.start()
-        process.join(timeout)
-        
-        if process.is_alive():
-            process.terminate()
-            process.join()
-            return FitResponse(
-                status="timeout",
-                message=f"Training exceeded timeout of {timeout} seconds"
-            )
-        
         try:
-            result = queue.get_nowait()
-            if isinstance(result, Exception):
-                raise result
+            loop = asyncio.get_event_loop()
+            future = loop.run_in_executor(
+                self.executor,
+                train_model,
+                hyperparameters,
+                train_data
+            )
+
+            try:
+                model = await asyncio.wait_for(future, timeout=timeout)
                 
-            model_info = ModelInfo(
-                id=model_id,
-                created_at=datetime.now(),
-                is_active=False,
-                parameters=hyperparameters
-            )
-            
-            self.models[model_id] = {
-                "model": result,
-                "info": model_info
-            }
-            
-            return FitResponse(
-                status="success",
-                message="Model trained successfully",
-                model_id=model_id
-            )
-            
+                model_info = ModelInfo(
+                    id=model_id,
+                    created_at=datetime.now(),
+                    is_active=False,
+                    parameters=hyperparameters
+                )
+                
+                self.models[model_id] = {
+                    "model": model,
+                    "info": model_info
+                }
+
+                return FitResponse(
+                    status="success",
+                    message="Model trained successfully",
+                    model_id=model_id
+                )
+
+            except asyncio.TimeoutError:
+                return FitResponse(
+                    status="timeout",
+                    message=f"Training exceeded timeout of {timeout} seconds"
+                )
+
         except Exception as e:
             return FitResponse(
                 status="error",
                 message=f"Training failed: {str(e)}"
             )
-
-    def predict(self, data: PatientData) -> PredictResponse:
-        """Make prediction using active model"""
+        
+    def predict_batch(self, patients: List[PatientData]) -> BatchPredictResponse:
+        """
+        Получение предсказаний для группы пациентов от активной модели
+        """
         if not self.active_model_id or self.active_model_id not in self.models:
             raise HTTPException(status_code=404, detail="No active model found")
             
         model = self.models[self.active_model_id]["model"]
         
         try:
-            features = data.to_dict()
-            probability = model.predict(features)
-            prediction = round(probability)
+            predictions = []
+            for patient in patients:
+                probability = model.predict(patient.to_dict())
+                predictions.append(
+                    PatientPrediction(
+                        prediction=round(probability),
+                        probability=float(probability)
+                    )
+                )
             
-            return PredictResponse(
-                prediction=round(prediction),
-                probability=float(probability),
-                model_id=self.active_model_id
+            return BatchPredictResponse(
+                model_id=self.active_model_id,
+                predictions=predictions
             )
+            
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Prediction error: {str(e)}")
 

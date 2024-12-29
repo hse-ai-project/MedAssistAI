@@ -114,10 +114,16 @@ class FitResponse(BaseModel):
     message: str
     model_id: Optional[str] = None
 
-class PredictResponse(BaseModel):
+class BatchPredictRequest(BaseModel):
+    patients: List[PatientData]
+
+class PatientPrediction(BaseModel):
     prediction: int
     probability: float
+
+class BatchPredictResponse(BaseModel):
     model_id: str
+    predictions: List[PatientPrediction]
 
 class SetModelRequest(BaseModel):
     model_id: str
