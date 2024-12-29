@@ -1,4 +1,2 @@
-X1,X2,target
-10,7,0
-20,8,1
-30,9,1
+age,sex,chest_pain_type,resting_bp,cholesterol,fasting_bs,resting_ecg,max_hr,exercise_angina,oldpeak,st_slope,num_major_vessels,thal,height,weight,ap_hi,ap_lo,gluc,smoke,alco,active,target
+55,1,0,130,1,1,0,150,0,2,1,0,0,187,75,120,80,1,0,1,0,1

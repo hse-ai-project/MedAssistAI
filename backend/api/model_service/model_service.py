@@ -8,7 +8,7 @@ from concurrent.futures import ProcessPoolExecutor
 import asyncio
 from api.model.model import *
 
-def train_model(hyperparameters: Dict[str, Any], train_data: TrainData, queue: multiprocessing.Queue):
+def train_model(hyperparameters: Dict[str, Any], train_data: TrainData):
     """Training function to run in separate process"""
     try:
         with open('api/model_service/model.pickle', 'rb') as f:
@@ -22,9 +22,10 @@ def train_model(hyperparameters: Dict[str, Any], train_data: TrainData, queue: m
         
         model.fit(X_train, y_train)
         
-        queue.put(model)
+        # queue.put(model)
     except Exception as e:
-        queue.put(e)
+        pass
+        # queue.put(e)
 
 class ModelService:
     def __init__(self, max_workers: int = 3):

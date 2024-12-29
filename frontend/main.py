@@ -83,7 +83,10 @@ def process_main_page():
                 }
                 try:
                     fitting_result = requests.post("http://127.0.0.1:8000/model/fit", json=fit_json_data).json()
-                    write_fit_result(fitting_result)
+                    if 'message' in fitting_result:
+                        st.write(f'#### {fitting_result['message']}')
+                    else:
+                        st.write(fitting_result)
                 except Exception as err:
                     logger.error("Cant get response from API for /fit: " + str(err))
                     st.write('#### Не удалось выполнить запрос к API: ')
@@ -104,6 +107,11 @@ def process_main_page():
                 set_model_result = requests.post("http://127.0.0.1:8000/model/set_model", json=set_json_data).json()
                 if 'detail' in set_model_result:  # поднялся HTTPException
                     st.write(f'#### {set_model_result['detail']}')
+                elif 'status' in set_model_result:
+                    if set_model_result['status'] == 'success':
+                        st.write(f'#### Модель {model_id} теперь является активной')
+                    else:
+                        st.write(f'#### Статус установки модели в качестве активной: {set_model_result['status']}')
                 else:
                     st.write(set_model_result)
             except Exception as err:
@@ -205,7 +213,10 @@ def process_main_page():
             st.write("Запрос отправлен!")
             try:
                 models_result = requests.get("http://127.0.0.1:8000/model/models").json()
-                write_models(models_result)
+                if 'models' in models_result:
+                    write_models(models_result['models'])
+                else:
+                    write_models(models_result)
             except Exception as err:
                 logger.error("Cant get response from API for /models: " + str(err))
                 st.write('#### Не удалось выполнить запрос к API: ')
@@ -228,13 +239,10 @@ def process_main_page():
 
 
 # Ниже представлены функции для отрисовки полученных данных от FastAPI
-def write_fit_result(fit_result):
-    st.write("## Результат обучения")
-    st.table(pd.DataFrame(fit_result))
-
 def write_models(models):
     st.write("## Доступные модели")
-    st.table(pd.DataFrame(models))
+    # st.table(pd.DataFrame(models))
+    st.table(models)
 
 def write_prediction(prediction):
     st.write("## Поставленный диагноз")
