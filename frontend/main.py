@@ -67,9 +67,12 @@ def process_main_page():
             if not red_flag:
                 st.write("Запрос отправлен!")
                 train_df = pd.read_csv(train_data)
-                features = train_df.drop(columns=['target']).to_dict()
+                X = train_df.drop(columns=['target'])
+                features = {}
+                for col in X.columns:
+                    features[col] = X[col].to_list()
                 target = train_df['target'].to_list()
-                fit_json_data = [{
+                fit_json_data = {
                     'id': model_id,
                     'hyperparameters': loads(params.read()),
                     'train_data': {
@@ -77,7 +80,7 @@ def process_main_page():
                         'target': target
                     },
                     'timeout': 10
-                }]
+                }
                 try:
                     fitting_result = requests.post("http://127.0.0.1:8000/model/fit", json=fit_json_data).json()
                     write_fit_result(fitting_result)
@@ -99,7 +102,10 @@ def process_main_page():
             st.write("Запрос отправлен!")
             try:
                 set_model_result = requests.post("http://127.0.0.1:8000/model/set_model", json=set_json_data).json()
-                st.write('#### Успешно выбрана модель: ' + model_id)
+                if 'detail' in set_model_result:  # поднялся HTTPException
+                    st.write(f'#### {set_model_result['detail']}')
+                else:
+                    st.write(set_model_result)
             except Exception as err:
                 logger.error("Cant get response from API for /set_model: " + str(err))
                 st.write('#### Не удалось выполнить запрос к API: ')
@@ -125,7 +131,10 @@ def process_main_page():
 
             if not red_flag:
                 train_df = pd.read_csv(train_data)
-                features = train_df.drop(columns=['target']).to_dict()
+                X = train_df.drop(columns=['target'])
+                features = {}
+                for col in X.columns:
+                    features[col] = X[col].to_list()
                 target = train_df['target'].to_list()
                 update_json_data = {
                     'model_id': model_id,
@@ -135,7 +144,10 @@ def process_main_page():
                 st.write("Запрос отправлен!")
                 try:
                     update_model_result = requests.post(f"http://127.0.0.1:8000/model/update_model/{model_id}", json=update_json_data).json()
-                    st.write(f'#### Модель {model_id} успешно обновлена!')
+                    if 'detail' in update_model_result:
+                        st.write(f'#### {update_model_result['detail']}')
+                    else:
+                        st.write(update_model_result)
                 except Exception as err:
                     logger.error("Cant get response from API for /update_model/{model_id}: " + str(err))
                     st.write('#### Не удалось выполнить запрос к API: ')
@@ -147,11 +159,16 @@ def process_main_page():
         st.write("Требуется заполнить sidebar: загрузить CSV файл или выставить параметры вручную")
         send_predict_request = st.button("Отправить запрос", key='send_predict_request')
         if send_predict_request:
-            predict_json_data = patients.copy()
+            predict_json_data = {
+                'patients': patients
+            }
             st.write("Запрос отправлен!")
             try:
                 predict_model_result = requests.post("http://127.0.0.1:8000/model/predict", json=predict_json_data).json()
-                write_prediction(predict_model_result)
+                if 'detail' in predict_model_result:
+                    st.write(f'#### {predict_model_result['detail']}')
+                else:
+                    write_prediction(predict_model_result)
             except Exception as err:
                 logger.error("Cant get response from API for /predict: " + str(err))
                 st.write('#### Не удалось выполнить запрос к API: ')
@@ -163,17 +180,21 @@ def process_main_page():
         st.write("Требуется заполнить sidebar: загрузить CSV файл или выставить параметры вручную")
         send_predict_proba_request = st.button("Отправить запрос", key='send_predict_proba_request')
         if send_predict_proba_request:
-            predict_json_data = patients.copy()
+            predict_json_data = {
+                'patients': patients
+            }
             st.write("Запрос отправлен!")
             try:
                 predict_proba_model_result = requests.post("http://127.0.0.1:8000/model/predict", json=predict_json_data).json()
-                probs = [row['probability'] for row in predict_proba_model_result]
-                write_prediction_proba(probs)
+                if 'detail' in predict_proba_model_result:
+                    st.write(f'#### {predict_proba_model_result['detail']}')
+                else:
+                    probs = [row['probability'] for row in predict_proba_model_result]
+                    write_prediction_proba(probs)
             except Exception as err:
                 logger.error("Cant get response from API for /predict: " + str(err))
                 st.write('#### Не удалось выполнить запрос к API: ')
                 st.write(str(err))  # если не хотим выводить ошибку на клиент - закомментить эту строчку
-
 
 
     with models_expander:
@@ -198,7 +219,7 @@ def process_main_page():
         if send_participants_request:
             st.write("Запрос отправлен!")
             try:
-                participants_result = requests.get("http://127.0.0.1:8000/participants").json()
+                participants_result = requests.get("http://127.0.0.1:8000/participants").json()['status']
                 write_participants(participants_result)
             except Exception as err:
                 logger.error("Cant get response from API for /participants: " + str(err))
