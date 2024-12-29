@@ -32,7 +32,7 @@ class ST_Slope(int, Enum):
     DOWNSLOPING = 2
 
 class Thal(int, Enum):
-    NORMAL = 0
+    NORMAL = 0 
     FIXED_DEFECT = 1
     REVERSIBLE_DEFECT = 2
 
