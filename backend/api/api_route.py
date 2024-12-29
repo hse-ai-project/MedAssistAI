@@ -22,15 +22,16 @@ async def fit(request: FitRequest):
         request.timeout
     )
 
-@router.post("/predict", response_model=PredictResponse)
-async def predict(data: PatientData):
+@router.post("/predict", response_model=List[PredictResponse])
+async def predict(data: List[PatientData]):
     """
     Получение предсказания от активной модели
     
     Args:
-        data: Данные пациента для предсказания
+        data: Данные пациентов для предсказания
     """
-    return model_service.predict(data)
+    return [model_service.predict(data)]
+
 
 @router.get("/models", response_model=ModelsResponse)
 async def get_models():

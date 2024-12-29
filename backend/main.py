@@ -13,7 +13,7 @@ class InfoResponse(BaseModel):
 
 @app.get("/participants", response_model=InfoResponse)
 async def info_out() -> InfoResponse:
-    "Метод, выводящий информацию о проекте"
+    "Метод, выводящий информацию об участниках проекта"
 
     info = '''
         Васильев Даниил — @daniel_vasiliev, AristanD
