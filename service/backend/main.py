@@ -1,15 +1,12 @@
 import uvicorn
 from fastapi import FastAPI
 from pydantic import BaseModel
+from api.api_route import router, logger
 
-from api.api_route import router
 
 app = FastAPI(title="MedAssistAI")
-
-
 class InfoResponse(BaseModel):
     status: str
-
 
 @app.get("/participants", response_model=InfoResponse)
 async def info_out() -> InfoResponse:
@@ -27,6 +24,7 @@ async def info_out() -> InfoResponse:
         Куратор:
         Малюшитский Кирилл — @malyushitsky, malyushitsky
     '''
+    logger.debug("Got request from client to /participants")
     return InfoResponse(status=info)
 
 

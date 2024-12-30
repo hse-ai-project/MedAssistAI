@@ -1,0 +1,23 @@
+2024-12-30 10:22:25,723 - frontend - DEBUG - 'Fit' button clicked
+2024-12-30 10:22:25,725 - frontend - DEBUG - 'Fit' request has been sent
+2024-12-30 10:22:25,729 - backend - DEBUG - Got request from client to /fit
+2024-12-30 10:22:26,330 - frontend - DEBUG - Got response from API for /fit
+2024-12-30 10:22:26,330 - frontend - DEBUG - Fitting result: Model trained successfully
+2024-12-30 10:22:30,511 - frontend - DEBUG - 'Set model' button clicked
+2024-12-30 10:22:30,511 - frontend - DEBUG - 'Set model' request has been sent
+2024-12-30 10:22:30,514 - backend - DEBUG - Got request from client to /set_model
+2024-12-30 10:22:30,514 - frontend - DEBUG - Got response from API for /set_model
+2024-12-30 10:22:30,514 - frontend - DEBUG - Success setting model as active
+2024-12-30 10:22:33,772 - frontend - DEBUG - 'Predict' button clicked
+2024-12-30 10:22:33,772 - frontend - DEBUG - 'Predict' request has been sent
+2024-12-30 10:22:33,775 - backend - DEBUG - Got request from client to /predict
+2024-12-30 10:22:33,775 - frontend - DEBUG - Got response from API for /predict
+2024-12-30 10:22:33,775 - frontend - DEBUG - Prediction result: Prediction error: 'NoneType' object has no attribute 'predict'
+2024-12-30 10:22:36,309 - frontend - DEBUG - 'Models' button clicked
+2024-12-30 10:22:36,309 - frontend - DEBUG - 'Models' request has been sent
+2024-12-30 10:22:36,311 - backend - DEBUG - Got request from client to /models
+2024-12-30 10:22:36,312 - frontend - DEBUG - Got response from API for /models
+2024-12-30 10:22:38,807 - frontend - DEBUG - 'Participants' button clicked
+2024-12-30 10:22:38,807 - frontend - DEBUG - 'Participants' request has been sent
+2024-12-30 10:22:38,809 - backend - DEBUG - Got request from client to /participants
+2024-12-30 10:22:38,809 - frontend - DEBUG - Got response from API for /participants

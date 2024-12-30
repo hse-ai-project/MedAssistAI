@@ -7,11 +7,26 @@ import pandas as pd
 from concurrent.futures import ProcessPoolExecutor
 import asyncio
 from api.model.model import *
+import logging
+from logging.handlers import TimedRotatingFileHandler
+
+def setup_logger():
+    '''Конфигурация логгера для последующей его использования'''
+    logger_ = logging.getLogger("backend")
+    if not logger_.hasHandlers():
+        logger_.setLevel(logging.DEBUG)
+        handler = TimedRotatingFileHandler("logs/logs.log", when="D", interval=1)
+        formatter = logging.Formatter(
+            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        )
+        handler.setFormatter(formatter)
+        logger_.addHandler(handler)
+    return logger_
 
 def train_model(hyperparameters: Dict[str, Any], train_data: TrainData):
     """Training function to run in separate process"""
     try:
-        with open('api/model_service/model.pickle', 'rb') as f:
+        with open('backend/api/model_service/model_0.pickle', 'rb') as f:
             model = pickle.load(f)
             
         X_train = train_data.features
@@ -37,7 +52,7 @@ class ModelService:
     def load_initial_model(self):
         """Load pre-trained model on startup"""
         try:
-            with open('api/model_service/model.pickle', 'rb') as f:
+            with open('backend/api/model_service/model_0.pickle', 'rb') as f:
                 model = pickle.load(f)
             
             model_info = ModelInfo(
