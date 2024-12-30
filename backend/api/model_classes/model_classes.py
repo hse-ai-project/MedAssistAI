@@ -2,10 +2,13 @@ import pandas as pd
 import numpy as np
 from typing import List, Dict, Any
 from sklearn.impute import SimpleImputer
+from sklearn.model_selection import KFold
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
+from xgboost import XGBClassifier
+import joblib
 
 class HeartDataImputer:
-    """Класс для заполнения пропусков для модели Heart"""
-
     def __init__(self):
         self.features = {
             'numeric': ['Age', 'RestingBP', 'Cholesterol', 'MaxHR', 'Oldpeak', 'NumMajorVessels'],
@@ -16,50 +19,60 @@ class HeartDataImputer:
         self.numeric_imputer = SimpleImputer(strategy='mean')
         self.categorical_imputer = SimpleImputer(strategy='most_frequent')
         self.is_fitted = False
+        self.scaler = StandardScaler()  # scaler
 
+    def fit(self, data: pd.DataFrame):
+        """
+        Обучает импутеры на тренировочных данных. Также обучает StandardScaler и преобразовывает данные
 
-    def fit(self, data: Dict[str, List[Any]]) -> 'HeartDataImputer':
+        Parameters:
+        data (pd.DataFrame): Тренировочные данные
+        """
+        data = pd.DataFrame(data)
         required_columns = self.features['numeric'] + self.features['categorical']
-        missing_columns = set(required_columns) - set(data.keys())
+        missing_columns = set(required_columns) - set(data.columns)
         if missing_columns:
             raise ValueError(f"Missing required columns: {missing_columns}")
 
-        df = pd.DataFrame(data)
-        self.numeric_imputer.fit(df[self.features['numeric']])
-        self.categorical_imputer.fit(df[self.features['categorical']])
+        self.numeric_imputer.fit(data[self.features['numeric']])
+        self.categorical_imputer.fit(data[self.features['categorical']])
 
         self.statistics = {
-            'numeric': df[self.features['numeric']].mean().to_dict(),
-            'categorical': df[self.features['categorical']].mode().iloc[0].to_dict()
+            'numeric': data[self.features['numeric']].mean().to_dict(),
+            'categorical': data[self.features['categorical']].mode().iloc[0].to_dict()
         }
+
         self.is_fitted = True
+
+        # Scaler
+        self.scaler = self.scaler.fit(data[self.features['numeric']])
+        
         return self
 
-
-    def transform(self, patient_data: Dict[str, Any]) -> Dict[str, Any]:
+    def transform(self, patient_data: dict) -> dict:
         """
         Заполняет пропущенные значения в данных пациента
 
         Parameters:
-        patient_data (Dict[str, Any]): Данные пациента с возможными пропущенными значениями
+        patient_data (dict): Данные пациента с возможными пропущенными значениями
 
         Returns:
-        Dict[str, Any]: Данные пациента с заполненными пропущенными значениями
+        dict: Данные пациента с заполненными пропущенными значениями
         """
         if not self.is_fitted:
             raise ValueError("Imputer must be fitted before transform")
-
         filled_data = patient_data.copy()
-
         # Заполняем пропущенные числовые значения
         for feature in self.features['numeric']:
-            if feature not in filled_data or filled_data[feature] is None:
+            if feature not in filled_data or filled_data[feature].isna().sum()!=0:
                 filled_data[feature] = self.statistics['numeric'][feature]
 
         # Заполняем пропущенные категориальные значения
         for feature in self.features['categorical']:
-            if feature not in filled_data or filled_data[feature] is None:
+            if feature not in filled_data or filled_data[feature].isna().sum()!=0:
                 filled_data[feature] = self.statistics['categorical'][feature]
+        # Scaler
+        filled_data[self.features['numeric']] = self.scaler.transform(filled_data[self.features['numeric']])
 
         return filled_data
     
@@ -67,10 +80,9 @@ class HeartDataImputer:
 class HeartBasedPredictor:
     """Модель 1"""
 
-    def __init__(self, model, scaler, imputer):
-        self.model = model
-        self.scaler = scaler
-        self.imputer = imputer
+    def __init__(self):
+        #self.model = model
+        self.imputer = HeartDataImputer()
 
         self.feature_order = [
             'Age', 'Sex', 'CheastPainType', 'RestingBP', 'Cholesterol',
@@ -80,41 +92,41 @@ class HeartBasedPredictor:
         
         self.numerical_features = ['Age', 'RestingBP', 'Cholesterol', 'MaxHR', 'Oldpeak']
 
-
     def preprocess(self, features: pd.DataFrame) -> np.ndarray:
-        X = features[self.feature_order]
-        X = self.imputer.transform(X)
-        X[self.numerical_features] = self.scaler.transform(X[self.numerical_features])
-        return X.values
+        return self.imputer.transform(features[self.feature_order])
 
     def fit(self, X: Dict[str, List[Any]], y: np.ndarray) -> 'HeartBasedPredictor':
         df = pd.DataFrame(X)
-        X_processed = self.preprocess(df)
-        self.model.fit(X_processed, y)
+        self.imputer = self.imputer.fit(X)  # Сначала обучаем новый импутер на новых данных
+        X_processed = self.preprocess(df)   # Преобразовываем данные на новом препроцессинге
+        self.model = LogisticRegression(random_state=42, max_iter=1000).fit(X_processed, y)
         return self
 
     def predict(self, features: Dict[str, Any]) -> float:
-        df = pd.DataFrame([features])
-        X = self.preprocess(df)
+        X = self.preprocess(pd.DataFrame(features, index=[0]))
         return float(self.model.predict_proba(X)[0][1])
     
 
 class CardioTrainBasePredictor:
     """Модель 2"""
 
-    def __init__(self, model_path, X_NaN_dict):
+    def __init__(self):
         """Инициализация класса
-
-            Parameters:
-                X - входной массив данных, на котором получаются предсказания
-                model_path - модель, на основе которой будут получатся предсказания
-                X_NaN_dict - словарь для заполнения пропусков во входном массиве данных
         """
-        self.X_NaN_dict = X_NaN_dict
-        self.model = model_path
+        #self.model = model
 
+    def preprocessing_fit(self, df: pd.DataFrame) -> pd.DataFrame:
+        """
+            Функция, устанавливающая средние значения обучающего датафрейма в качестве значений для заполнения пропусков на предикте (если таковые будут присутствовать)
 
-    def preprocessing(self):
+            Returns:
+                X (pd.Dataframe) - подготовленный датафрейм для получения предсказаний
+        """
+        self.X_NaN_dict = df.mean().to_dict()    # Заполняем средним
+        self.fixed_features = ['age', 'gender', 'height', 'weight', 'ap_hi', 'ap_lo', 'cholesterol', 'gluc', 'smoke', 'alco', 'active']
+        return self
+
+    def preprocessing_transform(self, df: pd.DataFrame) -> pd.DataFrame:
         """
             Функция предобработки входных данных. 
             В виду того, что данная модель является базовой, в данном варианте присутствуют только заполнения пропусков на случай, если какие-то столбцы будут не заполнены от пользователя
@@ -122,16 +134,30 @@ class CardioTrainBasePredictor:
             Returns:
                 X (pd.Dataframe) - подготовленный датафрейм для получения предсказаний
         """
+        df = df[self.fixed_features]
         # Модуль заполнения пропусков
-        for col in self.model.feature_names_in_:
-            if (self.X[col].isna().sum() > 0) and (self.X_NaN_dict.get(col) != None):
-                self.X[col] = self.X_NaN_dict.get(col)
-        return self.X
+        for col in self.fixed_features:
+            if (df[col].isna().sum() > 0) and (self.X_NaN_dict.get(col) != None):
+                df[col] = self.X_NaN_dict.get(col)            
+        return df
     
     def fit(self, X: Dict[str, List[Any]], y: List[int]):
         """Обучение модели"""
-        df = pd.DataFrame(X)
-        self.model.fit(df, y)
+        self.preprocessing_fit(pd.DataFrame(X))    # Получение готовых пропусков для заполнения в дальнейшем
+        features = pd.DataFrame(X)
+        # Инициализация KFold
+        kf = KFold(n_splits=4)
+        for train_index, val_index in kf.split(features):
+            X_train, X_val = features.iloc[train_index], features.iloc[val_index]
+            y_train, y_val = y.iloc[train_index], y.iloc[val_index]
+            self.model = XGBClassifier(
+                                        n_estimators=500,
+                                        learning_rate=0.1,
+                                        max_depth=3,
+                                        objective='binary:logistic',
+                                        eval_metric='logloss',
+                                        random_state=12
+                                        ).fit(X_train, y_train, eval_set=[(X_val, y_val)], verbose=False)
         return self
 
     def predict(self, X):
@@ -140,10 +166,9 @@ class CardioTrainBasePredictor:
             Returns:    1 0
                         0.8 0.35
                 np.array - массив numpy вероятностями заболевания пользователя, округлёнными до сотых.
-        """
-        self.X = pd.DataFrame(X, index=[0])
-        self.X_prepared = self.preprocessing()
-        return 1 / (1 + np.exp(-self.model.predict(self.X, output_margin=True))) # Преобразование логита в условную вероятность
+        """ 
+        df = self.preprocessing_transform(pd.DataFrame(X, index=[0]))
+        return 1 / (1 + np.exp(-self.model.predict(df, output_margin=True)))    # Преобразование логита в условную вероятность
     
 
 class PredictorComposer:
@@ -154,9 +179,10 @@ class PredictorComposer:
         self.heart_based_predictor = heart_based_predictor
         self.cardio_train_based_predictor = cardio_train_based_predictor
 
-    def fit(self, X: Dict[str, List[Any]], y: np.ndarray) -> 'PredictorComposer':
-        self.heart_based_predictor.fit(X, y)
-        self.cardio_train_based_predictor.fit(X, y)
+    def fit(self, X1: Dict[str, List[Any]], y1: np.ndarray, X2: Dict[str, List[Any]], y2: np.ndarray) -> 'PredictorComposer':
+        self.heart_based_predictor.fit(X1, y1)
+        self.cardio_train_based_predictor.fit(X2, y2)
+        joblib.dump(self, "model_0.pickle")
         return self
     
     def set_parameters(self, params: Dict[str, Dict[str, Any]]) -> None:
