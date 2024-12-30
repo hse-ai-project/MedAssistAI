@@ -1,0 +1,26 @@
+2024-12-30 17:05:36,787 - frontend - DEBUG - 'Models' button clicked
+2024-12-30 17:05:36,787 - frontend - DEBUG - 'Models' request has been sent
+2024-12-30 17:05:36,792 - frontend - DEBUG - Got response from API for /models
+2024-12-30 17:05:42,960 - frontend - DEBUG - 'Participants' button clicked
+2024-12-30 17:05:42,961 - frontend - DEBUG - 'Participants' request has been sent
+2024-12-30 17:05:42,963 - frontend - DEBUG - Got response from API for /participants
+2024-12-30 17:05:57,308 - frontend - DEBUG - 'Predict' button clicked
+2024-12-30 17:05:57,308 - frontend - DEBUG - 'Predict' request has been sent
+2024-12-30 17:05:57,312 - frontend - DEBUG - Got response from API for /predict
+2024-12-30 17:05:57,312 - frontend - DEBUG - Prediction result: No active model found
+2024-12-30 17:06:06,853 - frontend - DEBUG - 'Set model' button clicked
+2024-12-30 17:06:06,854 - frontend - DEBUG - 'Set model' request has been sent
+2024-12-30 17:06:06,856 - frontend - DEBUG - Got response from API for /set_model
+2024-12-30 17:06:06,856 - frontend - DEBUG - Model  not found
+2024-12-30 17:06:20,231 - frontend - DEBUG - 'Predict' button clicked
+2024-12-30 17:06:20,232 - frontend - DEBUG - 'Predict' request has been sent
+2024-12-30 17:06:20,234 - frontend - DEBUG - Got response from API for /predict
+2024-12-30 17:06:20,234 - frontend - DEBUG - Prediction result: No active model found
+2024-12-30 17:06:23,156 - frontend - DEBUG - 'Predict proba' button clicked
+2024-12-30 17:06:23,156 - frontend - DEBUG - 'Predict' (for predict probability) request has been sent
+2024-12-30 17:06:23,159 - frontend - DEBUG - Got response from API for /predict
+2024-12-30 17:06:23,159 - frontend - DEBUG - Prediction result: No active model found
+2024-12-30 17:06:28,520 - frontend - DEBUG - 'Set model' button clicked
+2024-12-30 17:06:28,520 - frontend - DEBUG - 'Set model' request has been sent
+2024-12-30 17:06:28,523 - frontend - DEBUG - Got response from API for /set_model
+2024-12-30 17:06:28,523 - frontend - DEBUG - Model 12 not found

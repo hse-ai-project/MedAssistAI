@@ -40,7 +40,7 @@ def process_main_page():
     """
     Рендеринг основных элементов страницы (заголовки, изображения, sidebar, кнопки)
     """
-    image = Image.open("frontend/data/ded.jpg")
+    image = Image.open("data/ded.jpg")
     st.image(image)
     patients = process_side_bar_inputs()
     fit_expander = st.expander("Fit")
