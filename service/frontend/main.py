@@ -240,7 +240,11 @@ def process_main_page():
                     "http://127.0.0.1:8000/model/predict", json=predict_json_data, timeout=10
                 ).json()
                 logger.debug('Got response from API for /predict')
-                if "detail" in predict_model_result:
+                if 'predictions' in predict_model_result:
+                    pred = ['У вас обнаружено возможное сердечное заболевание! Срочно обратитесь к врачу!' if value['prediction'] == 1 else 'У вас не выявлено сердечных заболеваний' for value in predict_model_result['predictions']]
+                    logger.debug('Prediction result: %s', str(pred))
+                    write_prediction(pred)
+                elif "detail" in predict_model_result:
                     logger.debug('Prediction result: %s', str(predict_model_result['detail']))
                     st.write(f"#### {predict_model_result['detail']}")
                 else:
@@ -272,7 +276,11 @@ def process_main_page():
                     "http://127.0.0.1:8000/model/predict", json=predict_json_data, timeout=10
                 ).json()
                 logger.debug('Got response from API for /predict')
-                if "detail" in predict_proba_model_result:
+                if 'predictions' in predict_proba_model_result:
+                    pred_proba = [value['probability'] for value in predict_proba_model_result['predictions']]
+                    logger.debug('Prediction result: %s', str(pred_proba))
+                    write_prediction_proba(pred_proba)
+                elif "detail" in predict_proba_model_result:
                     logger.debug('Prediction result: %s', str(predict_proba_model_result['detail']))
                     st.write(f"#### {predict_proba_model_result['detail']}")
                 else:
@@ -385,9 +393,9 @@ def sidebar_input_features():
     weight = st.sidebar.number_input("Вес", 10, 200, 75)
     ap_hi = st.sidebar.number_input("Верхнее давление", 80, 200, 120)
     ap_lo = st.sidebar.number_input("Нижнее давление", 50, 150, 80)
-    # cholesterol = st.sidebar.slider(
-    #     "Уровень холестерина", min_value=1, max_value=3, value=1, step=1
-    # )
+    cholesterol = st.sidebar.slider(
+        "Уровень холестерина", min_value=1, max_value=3, value=1, step=1
+    )
     gluc = st.sidebar.slider(
         "Уровень глюкозы", min_value=1, max_value=3, value=1, step=1
     )
@@ -481,19 +489,24 @@ def sidebar_input_features():
     else:
         df = pd.DataFrame(
             {
+                # Модель 1
+                "Age": age,
+                "Sex": translation[sex],
+                "CheastPainType": translation[chest_pain_type],
+                "RestingBP": resting_blood_pressure,
+                "Cholesterol": serum_cholestoral,
+                "FastingBS": translation[fasting_blood_sugar],
+                "RestingECG": translation[resting_electrocardiographic],
+                "MaxHR": maximum_heart_rate_achieved,
+                "ExerciseAngina": translation[exercise_induced_angina],
+                "Oldpeak": oldpeak,
+                "ST_Slope": translation[slope_peak_st],
+                "NumMajorVessels": vessels_colored_flourosopy,
+                "Thal": translation[thallium_stress_test],
+                # Модель 2
                 "age": age,
-                "sex": translation[sex],
-                "chest_pain_type": translation[chest_pain_type],
-                "resting_bp": resting_blood_pressure,
-                "cholesterol": serum_cholestoral,
-                "fasting_bs": translation[fasting_blood_sugar],
-                "resting_ecg": translation[resting_electrocardiographic],
-                "max_hr": maximum_heart_rate_achieved,
-                "exercise_angina": translation[exercise_induced_angina],
-                "oldpeak": oldpeak,
-                "st_slope": translation[slope_peak_st],
-                "num_major_vessels": vessels_colored_flourosopy,
-                "thal": translation[thallium_stress_test],
+                "gender": translation[sex],
+                "cholesterol": cholesterol,
                 "height": height,
                 "weight": weight,
                 "ap_hi": ap_hi,

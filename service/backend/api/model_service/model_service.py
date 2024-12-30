@@ -1,6 +1,6 @@
 from fastapi import HTTPException
 from typing import List, Dict, Any
-import pickle
+import joblib
 import multiprocessing
 from datetime import datetime
 import pandas as pd
@@ -26,8 +26,8 @@ def setup_logger():
 def train_model(hyperparameters: Dict[str, Any], train_data: TrainData):
     """Training function to run in separate process"""
     try:
-        with open('backend/api/model_service/model_0.pickle', 'rb') as f:
-            model = pickle.load(f)
+        with open('api/model_service/model.pickle', 'rb') as f:
+            model = joblib.load(f)
             
         X_train = train_data.features
         y_train = train_data.target
@@ -37,10 +37,8 @@ def train_model(hyperparameters: Dict[str, Any], train_data: TrainData):
         
         model.fit(X_train, y_train)
         
-        # queue.put(model)
     except Exception as e:
         pass
-        # queue.put(e)
 
 class ModelService:
     def __init__(self, max_workers: int = 3):
@@ -52,9 +50,8 @@ class ModelService:
     def load_initial_model(self):
         """Load pre-trained model on startup"""
         try:
-            with open('backend/api/model_service/model_0.pickle', 'rb') as f:
-                model = pickle.load(f)
-            
+            with open('api/model_service/model.pickle', 'rb') as f:
+                model = joblib.load(f)
             model_info = ModelInfo(
                 id="default_model",
                 created_at=datetime.now(),
@@ -86,7 +83,7 @@ class ModelService:
 
             try:
                 model = await asyncio.wait_for(future, timeout=timeout)
-                
+
                 model_info = ModelInfo(
                     id=model_id,
                     created_at=datetime.now(),
@@ -110,6 +107,7 @@ class ModelService:
                     status="timeout",
                     message=f"Training exceeded timeout of {timeout} seconds"
                 )
+            
 
         except Exception as e:
             return FitResponse(
@@ -125,7 +123,6 @@ class ModelService:
             raise HTTPException(status_code=404, detail="No active model found")
             
         model = self.models[self.active_model_id]["model"]
-        
         try:
             predictions = []
             for patient in patients:
