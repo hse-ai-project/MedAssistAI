@@ -106,7 +106,7 @@ def process_main_page():
                 try:
                     logger.debug("\'Fit\' request has been sent")
                     fitting_result = requests.post(
-                        "http://127.0.0.1:8000/model/fit", json=fit_json_data, timeout=10
+                        "http://fastapi:8000/model/fit", json=fit_json_data, timeout=10
                     ).json()
                     logger.debug('Got response from API for /fit')
                     if "message" in fitting_result:
@@ -137,7 +137,7 @@ def process_main_page():
             try:
                 logger.debug("\'Set model\' request has been sent")
                 set_model_result = requests.post(
-                    "http://127.0.0.1:8000/model/set_model", json=set_json_data, timeout=10
+                    "http://fastapi:8000/model/set_model", json=set_json_data, timeout=10
                 ).json()
                 logger.debug('Got response from API for /set_model')
                 if "detail" in set_model_result:  # поднялся HTTPException
@@ -203,7 +203,7 @@ def process_main_page():
                 try:
                     logger.debug("\'Update model\' request has been sent")
                     update_model_result = requests.post(
-                        f"http://127.0.0.1:8000/model/update_model/{model_id}",
+                        f"http://fastapi:8000/model/update_model/{model_id}",
                         json=update_json_data,
                         timeout=10
                     ).json()
@@ -237,7 +237,7 @@ def process_main_page():
             try:
                 logger.debug("\'Predict\' request has been sent")
                 predict_model_result = requests.post(
-                    "http://127.0.0.1:8000/model/predict", json=predict_json_data, timeout=10
+                    "http://fastapi:8000/model/predict", json=predict_json_data, timeout=10
                 ).json()
                 logger.debug('Got response from API for /predict')
                 if 'predictions' in predict_model_result:
@@ -273,7 +273,7 @@ def process_main_page():
             try:
                 logger.debug("\'Predict\' (for predict probability) request has been sent")
                 predict_proba_model_result = requests.post(
-                    "http://127.0.0.1:8000/model/predict", json=predict_json_data, timeout=10
+                    "http://fastapi:8000/model/predict", json=predict_json_data, timeout=10
                 ).json()
                 logger.debug('Got response from API for /predict')
                 if 'predictions' in predict_proba_model_result:
@@ -303,7 +303,7 @@ def process_main_page():
             try:
                 logger.debug("\'Models\' request has been sent")
                 models_result = requests.get(
-                    "http://127.0.0.1:8000/model/models", timeout=10
+                    "http://fastapi:8000/model/models", timeout=10
                 ).json()
                 logger.debug('Got response from API for /models')
                 if "models" in models_result:
@@ -328,7 +328,7 @@ def process_main_page():
             try:
                 logger.debug("\'Participants\' request has been sent")
                 participants_result = requests.get(
-                    "http://127.0.0.1:8000/participants", timeout=10
+                    "http://fastapi:8000/participants", timeout=10
                 ).json()["status"]
                 logger.debug('Got response from API for /participants')
                 write_participants(participants_result)
