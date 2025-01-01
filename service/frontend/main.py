@@ -11,6 +11,9 @@ import streamlit as st
 from PIL import Image
 
 
+class ServerException(Exception):
+    pass
+
 
 def setup_logger():
     '''Конфигурация логгера для последующей его использования'''
@@ -115,7 +118,7 @@ def process_main_page():
                     else:
                         logger.debug('Fitting result: %s', str(fitting_result))
                         st.write(fitting_result)
-                except Exception as err:
+                except ServerException as err:
                     logger.error("Cant get response from API for /fit: %s", str(err))
                     st.write("#### Не удалось выполнить запрос к API: ")
                     st.write(
@@ -156,7 +159,7 @@ def process_main_page():
                 else:
                     logger.debug('Setting model: %s', str(set_model_result))
                     st.write(set_model_result)
-            except Exception as err:
+            except ServerException as err:
                 logger.error("Cant get response from API for /set_model: %s", str(err))
                 st.write("#### Не удалось выполнить запрос к API: ")
                 st.write(
@@ -208,13 +211,16 @@ def process_main_page():
                         timeout=10
                     ).json()
                     logger.debug('Got response from API for /update_model/%s', model_id)
-                    if "detail" in update_model_result:
+                    if 'message' in update_model_result:
+                        logger.debug('Updating model: %s', str(update_model_result['message']))
+                        st.write(f"#### {update_model_result['message']}")
+                    elif "detail" in update_model_result:
                         logger.debug('Updating model: %s', str(update_model_result['detail']))
                         st.write(f"#### {update_model_result['detail']}")
                     else:
                         logger.debug('Updating model: %s', str(update_model_result))
                         st.write(update_model_result)
-                except Exception as err:
+                except ServerException as err:
                     logger.error(
                         "Cant get response from API for /update_model/{model_id}: %s",
                         str(err)
@@ -241,7 +247,11 @@ def process_main_page():
                 ).json()
                 logger.debug('Got response from API for /predict')
                 if 'predictions' in predict_model_result:
-                    pred = ['У вас обнаружено возможное сердечное заболевание! Срочно обратитесь к врачу!' if value['prediction'] == 1 else 'У вас не выявлено сердечных заболеваний' for value in predict_model_result['predictions']]
+                    pred = [
+                            'У вас обнаружено возможное сердечное заболевание! Срочно обратитесь к врачу!'
+                            if value['prediction'] == 1 else 'У вас не выявлено сердечных заболеваний'
+                            for value in predict_model_result['predictions']
+                        ]
                     logger.debug('Prediction result: %s', str(pred))
                     write_prediction(pred)
                 elif "detail" in predict_model_result:
@@ -250,8 +260,7 @@ def process_main_page():
                 else:
                     logger.debug('Prediction result: %s', str(predict_model_result))
                     write_prediction(predict_model_result)
-                    
-            except Exception as err:
+            except ServerException as err:
                 logger.error("Cant get response from API for /predict: %s", str(err))
                 st.write("#### Не удалось выполнить запрос к API: ")
                 st.write(
@@ -287,7 +296,7 @@ def process_main_page():
                     probs = [row["probability"] for row in predict_proba_model_result]
                     logger.debug('Prediction result: %s', str(probs))
                     write_prediction_proba(probs)
-            except Exception as err:
+            except ServerException as err:
                 logger.error("Cant get response from API for /predict: %s", str(err))
                 st.write("#### Не удалось выполнить запрос к API: ")
                 st.write(
@@ -310,7 +319,7 @@ def process_main_page():
                     write_models(models_result["models"])
                 else:
                     write_models(models_result)
-            except Exception as err:
+            except ServerException as err:
                 logger.error("Cant get response from API for /models: %s", str(err))
                 st.write("#### Не удалось выполнить запрос к API: ")
                 st.write(
@@ -332,7 +341,7 @@ def process_main_page():
                 ).json()["status"]
                 logger.debug('Got response from API for /participants')
                 write_participants(participants_result)
-            except Exception as err:
+            except ServerException as err:
                 logger.error(
                     "Cant get response from API for /participants: %s", str(err)
                 )
@@ -347,7 +356,7 @@ def write_models(models):
     '''Отображение доступных моделей'''
     st.write("## Доступные модели")
     st.table(models)
-    
+
 
 def write_prediction(prediction):
     '''Отображение полученных прогнозов'''
