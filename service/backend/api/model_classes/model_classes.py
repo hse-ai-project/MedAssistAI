@@ -88,6 +88,11 @@ class HeartBasedPredictor:
             'FastingBS', 'RestingECG', 'MaxHR', 'ExerciseAngina', 'Oldpeak',
             'ST_Slope', 'NumMajorVessels', 'Thal'
         ]
+
+        self.log_params =  {
+                                'random_state': 42, 
+                                'max_iter':     1000
+                            }
         
         self.numerical_features = ['Age', 'RestingBP', 'Cholesterol', 'MaxHR', 'Oldpeak']
 
@@ -98,7 +103,7 @@ class HeartBasedPredictor:
         df = pd.DataFrame(X)[self.feature_order]
         self.imputer = self.imputer.fit(X)  # Сначала обучаем новый импутер на новых данных
         X_processed = self.preprocess(df)   # Преобразовываем данные на новом препроцессинге
-        self.model = LogisticRegression(random_state=42, max_iter=1000).fit(X_processed, y)
+        self.model = LogisticRegression(**self.log_params).fit(X_processed, y)
         return self
 
     def predict(self, features: Dict[str, Any]) -> float:
@@ -111,6 +116,16 @@ class CardioTrainBasePredictor:
 
     def __init__(self):
         self.fixed_features = ['age', 'gender', 'height', 'weight', 'ap_hi', 'ap_lo', 'cholesterol', 'gluc', 'smoke', 'alco', 'active']
+        self.xgb_params =   {
+                                'n_estimators':   500,
+                                'learning_rate':  0.1,
+                                'max_depth':      3,
+                                'objective':      'binary:logistic',
+                                'eval_metric':    'logloss',
+                                'random_state':   12,
+                                'n_splits':       4
+                                
+                            }        
 
     def preprocessing_fit(self, df: pd.DataFrame) -> pd.DataFrame:
         """
@@ -143,18 +158,12 @@ class CardioTrainBasePredictor:
         features = pd.DataFrame(X)[self.fixed_features]
         y = pd.DataFrame(y)
         # Инициализация KFold
-        kf = KFold(n_splits=4)
+        kf = KFold(n_splits=self.xgb_params.pop('n_splits', 4))
+
         for train_index, val_index in kf.split(features):
             X_train, X_val = features.iloc[train_index], features.iloc[val_index]
             y_train, y_val = y.iloc[train_index], y.iloc[val_index]
-            self.model = XGBClassifier(
-                                        n_estimators=500,
-                                        learning_rate=0.1,
-                                        max_depth=3,
-                                        objective='binary:logistic',
-                                        eval_metric='logloss',
-                                        random_state=12
-                                        ).fit(X_train, y_train, eval_set=[(X_val, y_val)], verbose=False)
+            self.model = XGBClassifier(**self.xgb_params).fit(X_train, y_train, eval_set=[(X_val, y_val)], verbose=False)
         return self
 
     def predict(self, X):
@@ -192,10 +201,11 @@ class PredictorComposer:
         return self
     
     def set_parameters(self, params: Dict[str, Dict[str, Any]]):
-        if 'heart_based' in params:
-            self.heart_based_predictor.model.set_params(**params['heart_based'])
-        # if 'cardio_based' in params:
-        #     self.cardio_train_based_predictor.model.set_params(**params['cardio_based'])
+        if params is not None:
+            if 'heart_based' in params:
+                self.heart_based_predictor.log_params.update(**params['heart_based'])
+            if 'cardio_based' in params:
+                self.cardio_train_based_predictor.xgb_params.update(**params['cardio_based'])
 
     def predict(self, features: Dict[str, Any]) -> float:
         self.prepare_dict(features)
