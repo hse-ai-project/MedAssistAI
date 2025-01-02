@@ -81,7 +81,6 @@ class HeartBasedPredictor:
     """Модель 1"""
 
     def __init__(self):
-        #self.model = model
         self.imputer = HeartDataImputer()
 
         self.feature_order = [
@@ -96,7 +95,7 @@ class HeartBasedPredictor:
         return self.imputer.transform(features[self.feature_order])
 
     def fit(self, X: Dict[str, List[Any]], y: np.ndarray) -> 'HeartBasedPredictor':
-        df = pd.DataFrame(X)
+        df = pd.DataFrame(X)[self.feature_order]
         self.imputer = self.imputer.fit(X)  # Сначала обучаем новый импутер на новых данных
         X_processed = self.preprocess(df)   # Преобразовываем данные на новом препроцессинге
         self.model = LogisticRegression(random_state=42, max_iter=1000).fit(X_processed, y)
@@ -111,9 +110,7 @@ class CardioTrainBasePredictor:
     """Модель 2"""
 
     def __init__(self):
-        """Инициализация класса
-        """
-        #self.model = model
+        self.fixed_features = ['age', 'gender', 'height', 'weight', 'ap_hi', 'ap_lo', 'cholesterol', 'gluc', 'smoke', 'alco', 'active']
 
     def preprocessing_fit(self, df: pd.DataFrame) -> pd.DataFrame:
         """
@@ -123,7 +120,6 @@ class CardioTrainBasePredictor:
                 X (pd.Dataframe) - подготовленный датафрейм для получения предсказаний
         """
         self.X_NaN_dict = df.mean().to_dict()    # Заполняем средним
-        self.fixed_features = ['age', 'gender', 'height', 'weight', 'ap_hi', 'ap_lo', 'cholesterol', 'gluc', 'smoke', 'alco', 'active']
         return self
 
     def preprocessing_transform(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -143,8 +139,9 @@ class CardioTrainBasePredictor:
     
     def fit(self, X: Dict[str, List[Any]], y: List[int]):
         """Обучение модели"""
-        self.preprocessing_fit(pd.DataFrame(X))    # Получение готовых пропусков для заполнения в дальнейшем
-        features = pd.DataFrame(X)
+        self.preprocessing_fit(pd.DataFrame(X)[self.fixed_features])    # Получение готовых пропусков для заполнения в дальнейшем
+        features = pd.DataFrame(X)[self.fixed_features]
+        y = pd.DataFrame(y)
         # Инициализация KFold
         kf = KFold(n_splits=4)
         for train_index, val_index in kf.split(features):
@@ -179,19 +176,29 @@ class PredictorComposer:
         self.heart_based_predictor = heart_based_predictor
         self.cardio_train_based_predictor = cardio_train_based_predictor
 
-    def fit(self, X1: Dict[str, List[Any]], y1: np.ndarray, X2: Dict[str, List[Any]], y2: np.ndarray) -> 'PredictorComposer':
+    def prepare_dict(self,  X: Dict[str, List[Any]]):
+        X['age'] = X['Age']
+        X['cholesterol'] = X['Cholesterol']
+
+    def fit_splitted(self, X1: Dict[str, List[Any]], y1: np.ndarray, X2: Dict[str, List[Any]], y2: np.ndarray) -> 'PredictorComposer':
         self.heart_based_predictor.fit(X1, y1)
         self.cardio_train_based_predictor.fit(X2, y2)
-        joblib.dump(self, "model_0.pickle")
         return self
     
-    def set_parameters(self, params: Dict[str, Dict[str, Any]]) -> None:
+    def fit(self, X: Dict[str, List[Any]], y: np.ndarray) -> 'PredictorComposer':
+        self.prepare_dict(X)
+        self.heart_based_predictor.fit(X, y)
+        self.cardio_train_based_predictor.fit(X, y)
+        return self
+    
+    def set_parameters(self, params: Dict[str, Dict[str, Any]]):
         if 'heart_based' in params:
             self.heart_based_predictor.model.set_params(**params['heart_based'])
-        if 'cardio_based' in params:
-            self.cardio_train_based_predictor.model.set_params(**params['cardio_based'])
+        # if 'cardio_based' in params:
+        #     self.cardio_train_based_predictor.model.set_params(**params['cardio_based'])
 
     def predict(self, features: Dict[str, Any]) -> float:
+        self.prepare_dict(features)
         heart_based_predict = self.heart_based_predictor.predict(features)
         cardio_train_based_predict = self.cardio_train_based_predictor.predict(features)
         return float((heart_based_predict + cardio_train_based_predict) / 2)

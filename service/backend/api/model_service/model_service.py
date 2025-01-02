@@ -37,8 +37,10 @@ def train_model(hyperparameters: Dict[str, Any], train_data: TrainData):
         
         model.fit(X_train, y_train)
         
+        return model
+
     except Exception as e:
-        pass
+        raise Exception(f"Error in model training: {e}")
 
 class ModelService:
     def __init__(self, max_workers: int = 3):
@@ -67,7 +69,7 @@ class ModelService:
             self.active_model_id = "default_model"
 
         except Exception as e:
-            print(f"Error loading initial model: {e}")
+            raise HTTPException(status_code=500, detail=f"Load Model error: {str(e)}") 
 
     async def fit_model(self, model_id: str, hyperparameters: Dict[str, Any], 
                  train_data: TrainData, timeout: int = 10) -> FitResponse:
@@ -81,32 +83,31 @@ class ModelService:
                 train_data
             )
 
-            try:
-                model = await asyncio.wait_for(future, timeout=timeout)
+            model = await asyncio.wait_for(future, timeout=timeout)
 
-                model_info = ModelInfo(
-                    id=model_id,
-                    created_at=datetime.now(),
-                    is_active=False,
-                    parameters=hyperparameters
-                )
+            model_info = ModelInfo(
+                id=model_id,
+                created_at=datetime.now(),
+                is_active=False,
+                parameters=hyperparameters
+            )
                 
-                self.models[model_id] = {
-                    "model": model,
-                    "info": model_info
-                }
+            self.models[model_id] = {
+                "model": model,
+                "info": model_info
+            }
 
-                return FitResponse(
-                    status="success",
-                    message="Model trained successfully",
-                    model_id=model_id
-                )
+            return FitResponse(
+                status="success",
+                message="Model trained successfully",
+                model_id=model_id
+            )
 
-            except asyncio.TimeoutError:
-                return FitResponse(
-                    status="timeout",
-                    message=f"Training exceeded timeout of {timeout} seconds"
-                )
+        except asyncio.TimeoutError:
+            return FitResponse(
+                status="timeout",
+                message=f"Training exceeded timeout of {timeout} seconds"
+            )
             
 
         except Exception as e:
