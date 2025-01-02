@@ -10,9 +10,10 @@ cardio_predictor = CardioTrainBasePredictor()
 # Создаем композитную модель
 composer = PredictorComposer(heart_predictor, cardio_predictor)
 
-# Получаем пути к файлам        
-heart_path = 'C:\\Users\\Daniil\\Desktop\\Python\\hse_project\\baseline\\ivan_chernykh_baseline_cml\\data\\heart.csv'
-cardio_path = 'C:\\Users\\Daniil\\Desktop\\Python\\hse_project\\baseline\\daniil_vasilev_baseline_cml\\data\\cardio_train_correct.parquet'
+# Получаем пути к файлам
+current_dir = os.path.dirname(os.path.abspath(__file__))        
+heart_path = os.path.join(current_dir, 'heart.csv')
+cardio_path = os.path.join(current_dir, 'cardio_train_correct.parquet')
 
 # Загружаем данные
 heart_data = pd.read_csv(heart_path)
