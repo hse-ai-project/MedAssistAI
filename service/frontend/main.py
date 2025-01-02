@@ -1,6 +1,6 @@
-'''
+"""
 Streamlit приложение
-'''
+"""
 
 import logging
 from json import loads
@@ -16,11 +16,12 @@ class ServerException(Exception):
 
 
 def setup_logger():
-    '''Конфигурация логгера для последующей его использования'''
+    """Конфигурация логгера для последующей его использования"""
     logger_ = logging.getLogger("frontend")
     if not logger_.hasHandlers():
         logger_.setLevel(logging.DEBUG)
-        handler = TimedRotatingFileHandler("logs/logs.log", when="D", interval=1)
+        handler = TimedRotatingFileHandler(
+            "logs/logs.log", when="D", interval=1)
         formatter = logging.Formatter(
             "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
         )
@@ -68,7 +69,8 @@ def process_main_page():
         timeout = st.number_input(
             "Введите время для таймаута (сек)", min_value=1, max_value=10000, value=10
         )
-        send_fit_request = st.button("Отправить запрос", key="send_fit_request")
+        send_fit_request = st.button(
+            "Отправить запрос", key="send_fit_request")
 
         if send_fit_request:
             logger.debug("'Fit' button clicked")
@@ -76,19 +78,19 @@ def process_main_page():
                 False  # если не хватает данных, то не даст отправить запрос к серверу
             )
             if model_id is None or model_id == "":
-                logger.error("No model_id in \'Fit\'!")
+                logger.error("No model_id in 'Fit'!")
                 st.write("#### Не заполнен ID модели!")
                 red_flag = True
             if train_data is None:
-                logger.error("No CSV-file in \'Fit\'!")
+                logger.error("No CSV-file in 'Fit'!")
                 st.write("#### Не загружены обучающие данные (CSV файл)!")
                 red_flag = True
             if params is None:
-                logger.error("No hyperparameters in \'Fit\'!")
+                logger.error("No hyperparameters in 'Fit'!")
                 st.write("#### Не загружены гиперпараметры (JSON файл)!")
                 red_flag = True
             if timeout is None:
-                logger.error("No timeout in \'Fit\'!")
+                logger.error("No timeout in 'Fit'!")
                 st.write("#### Не установлено время таймаута!")
                 red_flag = True
 
@@ -107,26 +109,31 @@ def process_main_page():
                     "timeout": 10,
                 }
                 try:
-                    logger.debug("\'Fit\' request has been sent")
+                    logger.debug("'Fit' request has been sent")
                     fitting_result = requests.post(
                         "http://fastapi:8000/model/fit", json=fit_json_data, timeout=10
                     ).json()
-                    logger.debug('Got response from API for /fit')
+                    logger.debug("Got response from API for /fit")
                     if "message" in fitting_result:
-                        logger.debug('Fitting result: %s', str(fitting_result['message']))
+                        logger.debug(
+                            "Fitting result: %s", str(
+                                fitting_result["message"])
+                        )
                         st.write(f"#### {fitting_result['message']}")
                     else:
-                        logger.debug('Fitting result: %s', str(fitting_result))
+                        logger.debug("Fitting result: %s", str(fitting_result))
                         st.write(fitting_result)
                 except ServerException as err:
-                    logger.error("Cant get response from API for /fit: %s", str(err))
+                    logger.error(
+                        "Cant get response from API for /fit: %s", str(err))
                     st.write("#### Не удалось выполнить запрос к API: ")
                     st.write(
                         str(err)
                     )  # если не хотим выводить ошибку на клиент - закомментить эту строчку
 
     with set_model_expander:
-        st.write("## Установите модель в качестве активной для дальнейших предсказаний")
+        st.write(
+            "## Установите модель в качестве активной для дальнейших предсказаний")
         model_id = st.text_input(
             "Введите ID обученной модели", placeholder="best_model_in_the_world_1"
         )
@@ -138,29 +145,37 @@ def process_main_page():
             set_json_data = {"model_id": model_id}
             st.write("Запрос отправлен!")
             try:
-                logger.debug("\'Set model\' request has been sent")
+                logger.debug("'Set model' request has been sent")
                 set_model_result = requests.post(
-                    "http://fastapi:8000/model/set_model", json=set_json_data, timeout=10
+                    "http://fastapi:8000/model/set_model",
+                    json=set_json_data,
+                    timeout=10,
                 ).json()
-                logger.debug('Got response from API for /set_model')
+                logger.debug("Got response from API for /set_model")
                 if "detail" in set_model_result:  # поднялся HTTPException
-                    logger.debug(set_model_result['detail'])
+                    logger.debug(set_model_result["detail"])
                     st.write(f"#### {set_model_result['detail']}")
                 elif "status" in set_model_result:
                     if set_model_result["status"] == "success":
-                        logger.debug('Success setting model as active')
-                        st.write(f"#### Модель {model_id} теперь является активной")
+                        logger.debug("Success setting model as active")
+                        st.write(
+                            f"#### Модель {model_id} теперь является активной")
                     else:
-                        logger.debug('Setting model: %s', str(set_model_result['status']))
+                        logger.debug(
+                            "Setting model: %s", str(
+                                set_model_result["status"])
+                        )
                         st.write(
                             f"#### Статус установки модели в качестве активной: \
                                 {set_model_result['status']}"
                         )
                 else:
-                    logger.debug('Setting model: %s', str(set_model_result))
+                    logger.debug("Setting model: %s", str(set_model_result))
                     st.write(set_model_result)
             except ServerException as err:
-                logger.error("Cant get response from API for /set_model: %s", str(err))
+                logger.error(
+                    "Cant get response from API for /set_model: %s",
+                    str(err))
                 st.write("#### Не удалось выполнить запрос к API: ")
                 st.write(
                     str(err)
@@ -183,11 +198,11 @@ def process_main_page():
             red_flag = False
             if model_id is None or model_id == "":
                 st.write("#### Не заполнен ID модели!")
-                logger.error("No model_id in \'Update model\'!")
+                logger.error("No model_id in 'Update model'!")
                 red_flag = True
             if train_data is None:
                 st.write("#### Не загружены обучающие данные (CSV файл)!")
-                logger.error("No CSV-file in \'Update model\'!")
+                logger.error("No CSV-file in 'Update model'!")
                 red_flag = True
 
             if not red_flag:
@@ -204,26 +219,35 @@ def process_main_page():
                 }
                 st.write("Запрос отправлен!")
                 try:
-                    logger.debug("\'Update model\' request has been sent")
+                    logger.debug("'Update model' request has been sent")
                     update_model_result = requests.post(
                         f"http://fastapi:8000/model/update_model/{model_id}",
                         json=update_json_data,
-                        timeout=10
+                        timeout=10,
                     ).json()
-                    logger.debug('Got response from API for /update_model/%s', model_id)
-                    if 'message' in update_model_result:
-                        logger.debug('Updating model: %s', str(update_model_result['message']))
+                    logger.debug(
+                        "Got response from API for /update_model/%s", model_id)
+                    if "message" in update_model_result:
+                        logger.debug(
+                            "Updating model: %s", str(
+                                update_model_result["message"])
+                        )
                         st.write(f"#### {update_model_result['message']}")
                     elif "detail" in update_model_result:
-                        logger.debug('Updating model: %s', str(update_model_result['detail']))
+                        logger.debug(
+                            "Updating model: %s", str(
+                                update_model_result["detail"])
+                        )
                         st.write(f"#### {update_model_result['detail']}")
                     else:
-                        logger.debug('Updating model: %s', str(update_model_result))
+                        logger.debug(
+                            "Updating model: %s",
+                            str(update_model_result))
                         st.write(update_model_result)
                 except ServerException as err:
                     logger.error(
                         "Cant get response from API for /update_model/{model_id}: %s",
-                        str(err)
+                        str(err),
                     )
                     st.write("#### Не удалось выполнить запрос к API: ")
                     st.write(
@@ -235,33 +259,46 @@ def process_main_page():
         st.write(
             "Требуется заполнить sidebar: загрузить CSV файл или выставить параметры вручную"
         )
-        send_predict_request = st.button("Отправить запрос", key="send_predict_request")
+        send_predict_request = st.button(
+            "Отправить запрос", key="send_predict_request")
         if send_predict_request:
             logger.debug("'Predict' button clicked")
             predict_json_data = {"patients": patients}
             st.write("Запрос отправлен!")
             try:
-                logger.debug("\'Predict\' request has been sent")
+                logger.debug("'Predict' request has been sent")
                 predict_model_result = requests.post(
-                    "http://fastapi:8000/model/predict", json=predict_json_data, timeout=10
+                    "http://fastapi:8000/model/predict",
+                    json=predict_json_data,
+                    timeout=10,
                 ).json()
-                logger.debug('Got response from API for /predict')
-                if 'predictions' in predict_model_result:
+                logger.debug("Got response from API for /predict")
+                if "predictions" in predict_model_result:
                     pred = [
-                            'У вас обнаружено возможное сердечное заболевание! Срочно обратитесь к врачу!'
-                            if value['prediction'] == 1 else 'У вас не выявлено сердечных заболеваний'
-                            for value in predict_model_result['predictions']
-                        ]
-                    logger.debug('Prediction result: %s', str(pred))
+                        (
+                            "У вас обнаружено возможное сердечное заболевание! Срочно обратитесь к врачу!"
+                            if value["prediction"] == 1
+                            else "У вас не выявлено сердечных заболеваний"
+                        )
+                        for value in predict_model_result["predictions"]
+                    ]
+                    logger.debug("Prediction result: %s", str(pred))
                     write_prediction(pred)
                 elif "detail" in predict_model_result:
-                    logger.debug('Prediction result: %s', str(predict_model_result['detail']))
+                    logger.debug(
+                        "Prediction result: %s", str(
+                            predict_model_result["detail"])
+                    )
                     st.write(f"#### {predict_model_result['detail']}")
                 else:
-                    logger.debug('Prediction result: %s', str(predict_model_result))
+                    logger.debug(
+                        "Prediction result: %s",
+                        str(predict_model_result))
                     write_prediction(predict_model_result)
             except ServerException as err:
-                logger.error("Cant get response from API for /predict: %s", str(err))
+                logger.error(
+                    "Cant get response from API for /predict: %s",
+                    str(err))
                 st.write("#### Не удалось выполнить запрос к API: ")
                 st.write(
                     str(err)
@@ -280,24 +317,37 @@ def process_main_page():
             predict_json_data = {"patients": patients}
             st.write("Запрос отправлен!")
             try:
-                logger.debug("\'Predict\' (for predict probability) request has been sent")
+                logger.debug(
+                    "'Predict' (for predict probability) request has been sent"
+                )
                 predict_proba_model_result = requests.post(
-                    "http://fastapi:8000/model/predict", json=predict_json_data, timeout=10
+                    "http://fastapi:8000/model/predict",
+                    json=predict_json_data,
+                    timeout=10,
                 ).json()
-                logger.debug('Got response from API for /predict')
-                if 'predictions' in predict_proba_model_result:
-                    pred_proba = [value['probability'] for value in predict_proba_model_result['predictions']]
-                    logger.debug('Prediction result: %s', str(pred_proba))
+                logger.debug("Got response from API for /predict")
+                if "predictions" in predict_proba_model_result:
+                    pred_proba = [
+                        value["probability"]
+                        for value in predict_proba_model_result["predictions"]
+                    ]
+                    logger.debug("Prediction result: %s", str(pred_proba))
                     write_prediction_proba(pred_proba)
                 elif "detail" in predict_proba_model_result:
-                    logger.debug('Prediction result: %s', str(predict_proba_model_result['detail']))
+                    logger.debug(
+                        "Prediction result: %s",
+                        str(predict_proba_model_result["detail"]),
+                    )
                     st.write(f"#### {predict_proba_model_result['detail']}")
                 else:
-                    probs = [row["probability"] for row in predict_proba_model_result]
-                    logger.debug('Prediction result: %s', str(probs))
+                    probs = [row["probability"]
+                             for row in predict_proba_model_result]
+                    logger.debug("Prediction result: %s", str(probs))
                     write_prediction_proba(probs)
             except ServerException as err:
-                logger.error("Cant get response from API for /predict: %s", str(err))
+                logger.error(
+                    "Cant get response from API for /predict: %s",
+                    str(err))
                 st.write("#### Не удалось выполнить запрос к API: ")
                 st.write(
                     str(err)
@@ -305,22 +355,25 @@ def process_main_page():
 
     with models_expander:
         st.write("##  Получение списка всех доступных моделей и информации о них")
-        send_models_request = st.button("Отправить запрос", key="send_models_request")
+        send_models_request = st.button(
+            "Отправить запрос", key="send_models_request")
         if send_models_request:
             logger.debug("'Models' button clicked")
             st.write("Запрос отправлен!")
             try:
-                logger.debug("\'Models\' request has been sent")
+                logger.debug("'Models' request has been sent")
                 models_result = requests.get(
                     "http://fastapi:8000/model/models", timeout=10
                 ).json()
-                logger.debug('Got response from API for /models')
+                logger.debug("Got response from API for /models")
                 if "models" in models_result:
                     write_models(models_result["models"])
                 else:
                     write_models(models_result)
             except ServerException as err:
-                logger.error("Cant get response from API for /models: %s", str(err))
+                logger.error(
+                    "Cant get response from API for /models: %s",
+                    str(err))
                 st.write("#### Не удалось выполнить запрос к API: ")
                 st.write(
                     str(err)
@@ -335,15 +388,16 @@ def process_main_page():
             logger.debug("'Participants' button clicked")
             st.write("Запрос отправлен!")
             try:
-                logger.debug("\'Participants\' request has been sent")
+                logger.debug("'Participants' request has been sent")
                 participants_result = requests.get(
                     "http://fastapi:8000/participants", timeout=10
                 ).json()["status"]
-                logger.debug('Got response from API for /participants')
+                logger.debug("Got response from API for /participants")
                 write_participants(participants_result)
             except ServerException as err:
                 logger.error(
-                    "Cant get response from API for /participants: %s", str(err)
+                    "Cant get response from API for /participants: %s", str(
+                        err)
                 )
                 st.write("#### Не удалось выполнить запрос к API: ")
                 st.write(
@@ -353,34 +407,37 @@ def process_main_page():
 
 # Ниже представлены функции для отрисовки полученных данных от FastAPI
 def write_models(models):
-    '''Отображение доступных моделей'''
+    """Отображение доступных моделей"""
     st.write("## Доступные модели")
     st.table(models)
 
 
 def write_prediction(prediction):
-    '''Отображение полученных прогнозов'''
+    """Отображение полученных прогнозов"""
     st.write("## Поставленный диагноз")
     st.table(pd.DataFrame(prediction, columns=["Диагноз"]))
 
 
 def write_prediction_proba(prediction_probs):
-    '''Отображение вероятностей полученных прогнозов'''
+    """Отображение вероятностей полученных прогнозов"""
     st.write("## Вероятность поставленного диагноза")
     st.table(
-        pd.DataFrame(prediction_probs, columns=["Вероятность сердечного заболевания"])
+        pd.DataFrame(
+            prediction_probs,
+            columns=["Вероятность сердечного заболевания"])
     )
 
 
 def write_participants(participants):
-    '''Отображение участников проекта'''
+    """Отображение участников проекта"""
     st.write("## Участники проекта:")
     st.write(participants)
 
 
 def process_side_bar_inputs():
-    '''Загрузка данных из сайдбара о пациентах'''
-    st.sidebar.header("🪪 Данные о пациенте (пациентах) для постановки диагноза")
+    """Загрузка данных из сайдбара о пациентах"""
+    st.sidebar.header(
+        "🪪 Данные о пациенте (пациентах) для постановки диагноза")
     user_input_df = sidebar_input_features()
     data = [row.to_dict() for _, row in user_input_df.iterrows()]
     st.write("## 🩺 Данные пациентов")
@@ -393,7 +450,8 @@ def sidebar_input_features():
     Рендеринг формы для загрузки данных через csv файл или через выбор параметров вручную
     """
 
-    uploaded_file = st.sidebar.file_uploader(label="Загрузить CSV  файл", type=["csv"])
+    uploaded_file = st.sidebar.file_uploader(
+        label="Загрузить CSV  файл", type=["csv"])
 
     st.sidebar.markdown("**Или выставите параметры вручную**")
     age = st.sidebar.number_input("Возраст", 0, 120, 55)
@@ -408,12 +466,14 @@ def sidebar_input_features():
     gluc = st.sidebar.slider(
         "Уровень глюкозы", min_value=1, max_value=3, value=1, step=1
     )
-    smoke = st.sidebar.selectbox("Курите", ("Нет", "Да", "Не могу сказать точно"))
+    smoke = st.sidebar.selectbox(
+        "Курите", ("Нет", "Да", "Не могу сказать точно"))
     alco = st.sidebar.selectbox(
         "Употребляете алкоголь", ("Нет", "Да", "Не могу сказать точно")
     )
     active = st.sidebar.selectbox(
-        "Занимаетесь физической активностью", ("Нет", "Да", "Не могу сказать точно")
+        "Занимаетесь физической активностью", ("Нет",
+                                               "Да", "Не могу сказать точно")
     )
 
     chest_pain_type = st.sidebar.selectbox(
@@ -429,7 +489,8 @@ def sidebar_input_features():
     resting_blood_pressure = st.sidebar.number_input(
         "Артериальное давление в состоянии покоя", 80, 200, 130
     )
-    serum_cholestoral = st.sidebar.number_input("Холестерин в мг/дл)", 100, 300, 240)
+    serum_cholestoral = st.sidebar.number_input(
+        "Холестерин в мг/дл)", 100, 300, 240)
     fasting_blood_sugar = st.sidebar.selectbox(
         "Уровень сахара в крови натощак меньше 120 mg/d",
         ("Не могу сказать точно", "Нет", "Да"),
@@ -467,7 +528,8 @@ def sidebar_input_features():
     )
     thallium_stress_test = st.sidebar.selectbox(
         "Таллиевый стресс-тест",
-        ("Не могу сказать точно", "Норма", "Фиксированный дефект", "Обратимый дефект"),
+        ("Не могу сказать точно", "Норма",
+         "Фиксированный дефект", "Обратимый дефект"),
     )
 
     translation = {

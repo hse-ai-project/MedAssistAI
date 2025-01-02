@@ -6,11 +6,6 @@ services:
     networks:
       - deploy_network
     container_name: fastapi
-    volumes:
-        - ./data:/app/data/
-        - ./config:/app/config
-        - ./models:/app/models
-        - ./report:/app/report
 
   streamlit:
     build: service/frontend/
@@ -21,11 +16,6 @@ services:
     networks:
       - deploy_network
     container_name: streamlit
-    volumes:
-        - ./data:/app/data/
-        - ./config:/app/config
-        - ./models:/app/models
-        - ./report:/app/report
 
 networks:
   deploy_network:
