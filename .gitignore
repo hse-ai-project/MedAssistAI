@@ -6,6 +6,8 @@ __pycache__/
 # C extensions
 *.so
 
+*.DS_Store
+
 # Distribution / packaging
 .Python
 build/
@@ -56,7 +58,6 @@ cover/
 *.pot
 
 # Django stuff:
-*.log
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
@@ -125,6 +126,7 @@ celerybeat.pid
 .env
 .venv
 env/
+myenv/
 venv/
 ENV/
 env.bak/

@@ -1,0 +1,100 @@
+2024-12-30 17:05:36,787 - frontend - DEBUG - 'Models' button clicked
+2024-12-30 17:05:36,787 - frontend - DEBUG - 'Models' request has been sent
+2024-12-30 17:05:36,792 - frontend - DEBUG - Got response from API for /models
+2024-12-30 17:05:42,960 - frontend - DEBUG - 'Participants' button clicked
+2024-12-30 17:05:42,961 - frontend - DEBUG - 'Participants' request has been sent
+2024-12-30 17:05:42,963 - frontend - DEBUG - Got response from API for /participants
+2024-12-30 17:05:57,308 - frontend - DEBUG - 'Predict' button clicked
+2024-12-30 17:05:57,308 - frontend - DEBUG - 'Predict' request has been sent
+2024-12-30 17:05:57,312 - frontend - DEBUG - Got response from API for /predict
+2024-12-30 17:05:57,312 - frontend - DEBUG - Prediction result: No active model found
+2024-12-30 17:06:06,853 - frontend - DEBUG - 'Set model' button clicked
+2024-12-30 17:06:06,854 - frontend - DEBUG - 'Set model' request has been sent
+2024-12-30 17:06:06,856 - frontend - DEBUG - Got response from API for /set_model
+2024-12-30 17:06:06,856 - frontend - DEBUG - Model  not found
+2024-12-30 17:06:20,231 - frontend - DEBUG - 'Predict' button clicked
+2024-12-30 17:06:20,232 - frontend - DEBUG - 'Predict' request has been sent
+2024-12-30 17:06:20,234 - frontend - DEBUG - Got response from API for /predict
+2024-12-30 17:06:20,234 - frontend - DEBUG - Prediction result: No active model found
+2024-12-30 17:06:23,156 - frontend - DEBUG - 'Predict proba' button clicked
+2024-12-30 17:06:23,156 - frontend - DEBUG - 'Predict' (for predict probability) request has been sent
+2024-12-30 17:06:23,159 - frontend - DEBUG - Got response from API for /predict
+2024-12-30 17:06:23,159 - frontend - DEBUG - Prediction result: No active model found
+2024-12-30 17:06:28,520 - frontend - DEBUG - 'Set model' button clicked
+2024-12-30 17:06:28,520 - frontend - DEBUG - 'Set model' request has been sent
+2024-12-30 17:06:28,523 - frontend - DEBUG - Got response from API for /set_model
+2024-12-30 17:06:28,523 - frontend - DEBUG - Model 12 not found
+2024-12-31 02:34:36,707 - frontend - DEBUG - 'Fit' button clicked
+2024-12-31 02:34:36,707 - frontend - ERROR - No model_id in 'Fit'!
+2024-12-31 02:34:44,632 - frontend - DEBUG - 'Fit' button clicked
+2024-12-31 02:34:44,641 - frontend - DEBUG - 'Fit' request has been sent
+2024-12-31 02:34:47,128 - frontend - DEBUG - Got response from API for /fit
+2024-12-31 02:34:47,128 - frontend - DEBUG - Fitting result: Model trained successfully
+2024-12-31 02:58:02,790 - frontend - DEBUG - 'Fit' button clicked
+2024-12-31 02:58:02,796 - frontend - DEBUG - 'Fit' request has been sent
+2024-12-31 02:58:05,251 - frontend - DEBUG - Got response from API for /fit
+2024-12-31 02:58:05,251 - frontend - DEBUG - Fitting result: Model trained successfully
+2024-12-31 02:58:25,383 - frontend - DEBUG - 'Set model' button clicked
+2024-12-31 02:58:25,384 - frontend - DEBUG - 'Set model' request has been sent
+2024-12-31 02:58:25,392 - frontend - DEBUG - Got response from API for /set_model
+2024-12-31 02:58:25,392 - frontend - DEBUG - Success setting model as active
+2024-12-31 02:58:36,478 - frontend - DEBUG - 'Models' button clicked
+2024-12-31 02:58:36,480 - frontend - DEBUG - 'Models' request has been sent
+2024-12-31 02:58:36,488 - frontend - DEBUG - Got response from API for /models
+2024-12-31 02:59:02,142 - frontend - DEBUG - 'Models' button clicked
+2024-12-31 02:59:02,145 - frontend - DEBUG - 'Models' request has been sent
+2024-12-31 02:59:02,154 - frontend - DEBUG - Got response from API for /models
+2024-12-31 03:01:29,100 - frontend - DEBUG - 'Set model' button clicked
+2024-12-31 03:01:29,101 - frontend - DEBUG - 'Set model' request has been sent
+2024-12-31 03:01:29,110 - frontend - DEBUG - Got response from API for /set_model
+2024-12-31 03:01:29,111 - frontend - DEBUG - Success setting model as active
+2024-12-31 03:01:33,846 - frontend - DEBUG - 'Models' button clicked
+2024-12-31 03:01:33,848 - frontend - DEBUG - 'Models' request has been sent
+2024-12-31 03:01:33,855 - frontend - DEBUG - Got response from API for /models
+2024-12-31 03:01:41,680 - frontend - DEBUG - 'Predict' button clicked
+2024-12-31 03:01:41,683 - frontend - DEBUG - 'Predict' request has been sent
+2024-12-31 03:01:41,729 - frontend - DEBUG - Got response from API for /predict
+2024-12-31 03:01:41,729 - frontend - DEBUG - Prediction result: ['У вас обнаружено возможное сердечное заболевание! Срочно обратитесь к врачу!']
+2024-12-31 03:02:31,902 - frontend - DEBUG - 'Predict' button clicked
+2024-12-31 03:02:31,903 - frontend - DEBUG - 'Predict' request has been sent
+2024-12-31 03:02:31,932 - frontend - DEBUG - Got response from API for /predict
+2024-12-31 03:02:31,933 - frontend - DEBUG - Prediction result: ['У вас обнаружено возможное сердечное заболевание! Срочно обратитесь к врачу!']
+2024-12-31 03:02:45,128 - frontend - DEBUG - 'Predict proba' button clicked
+2024-12-31 03:02:45,129 - frontend - DEBUG - 'Predict' (for predict probability) request has been sent
+2024-12-31 03:02:45,164 - frontend - DEBUG - Got response from API for /predict
+2024-12-31 03:02:45,164 - frontend - DEBUG - Prediction result: [0.655637264251709]
+2024-12-31 03:02:54,899 - frontend - DEBUG - 'Models' button clicked
+2024-12-31 03:02:54,901 - frontend - DEBUG - 'Models' request has been sent
+2024-12-31 03:02:54,909 - frontend - DEBUG - Got response from API for /models
+2024-12-31 03:02:59,007 - frontend - DEBUG - 'Predict proba' button clicked
+2024-12-31 03:02:59,008 - frontend - DEBUG - 'Predict' (for predict probability) request has been sent
+2024-12-31 03:02:59,031 - frontend - DEBUG - Got response from API for /predict
+2024-12-31 03:02:59,031 - frontend - DEBUG - Prediction result: [0.7127854824066162]
+2024-12-31 03:03:05,219 - frontend - DEBUG - 'Predict proba' button clicked
+2024-12-31 03:03:05,221 - frontend - DEBUG - 'Predict' (for predict probability) request has been sent
+2024-12-31 03:03:05,280 - frontend - DEBUG - Got response from API for /predict
+2024-12-31 03:03:05,280 - frontend - DEBUG - Prediction result: [0.7416114807128906]
+2024-12-31 03:03:15,763 - frontend - DEBUG - 'Predict proba' button clicked
+2024-12-31 03:03:15,764 - frontend - DEBUG - 'Predict' (for predict probability) request has been sent
+2024-12-31 03:03:15,796 - frontend - DEBUG - Got response from API for /predict
+2024-12-31 03:03:15,796 - frontend - DEBUG - Prediction result: [0.7261234521865845]
+2024-12-31 03:03:29,397 - frontend - DEBUG - 'Predict proba' button clicked
+2024-12-31 03:03:29,398 - frontend - DEBUG - 'Predict' (for predict probability) request has been sent
+2024-12-31 03:03:29,445 - frontend - DEBUG - Got response from API for /predict
+2024-12-31 03:03:29,445 - frontend - DEBUG - Prediction result: [0.7074688673019409]
+2024-12-31 03:03:52,833 - frontend - DEBUG - 'Predict proba' button clicked
+2024-12-31 03:03:52,834 - frontend - DEBUG - 'Predict' (for predict probability) request has been sent
+2024-12-31 03:03:52,875 - frontend - DEBUG - Got response from API for /predict
+2024-12-31 03:03:52,875 - frontend - DEBUG - Prediction result: [0.7261234521865845]
+2024-12-31 03:03:57,111 - frontend - DEBUG - 'Predict proba' button clicked
+2024-12-31 03:03:57,114 - frontend - DEBUG - 'Predict' (for predict probability) request has been sent
+2024-12-31 03:03:57,144 - frontend - DEBUG - Got response from API for /predict
+2024-12-31 03:03:57,144 - frontend - DEBUG - Prediction result: [0.7261234521865845]
+2024-12-31 03:04:47,207 - frontend - DEBUG - 'Set model' button clicked
+2024-12-31 03:04:47,208 - frontend - DEBUG - 'Set model' request has been sent
+2024-12-31 03:04:47,215 - frontend - DEBUG - Got response from API for /set_model
+2024-12-31 03:04:47,216 - frontend - DEBUG - Success setting model as active
+2024-12-31 03:04:53,617 - frontend - DEBUG - 'Predict' button clicked
+2024-12-31 03:04:53,618 - frontend - DEBUG - 'Predict' request has been sent
+2024-12-31 03:04:53,626 - frontend - DEBUG - Got response from API for /predict
+2024-12-31 03:04:53,626 - frontend - DEBUG - Prediction result: Prediction error: 'NoneType' object has no attribute 'predict'
