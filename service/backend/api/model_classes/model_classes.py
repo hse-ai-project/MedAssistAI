@@ -44,8 +44,10 @@ class HeartDataImputer:
         data (pd.DataFrame): Тренировочные данные
         """
         data = pd.DataFrame(data)
-        required_columns = self.features["numeric"] + \
+        required_columns = (
+            self.features["numeric"] +
             self.features["categorical"]
+        )
         missing_columns = set(required_columns) - set(data.columns)
         if missing_columns:
             raise ValueError(f"Missing required columns: {missing_columns}")
@@ -55,8 +57,12 @@ class HeartDataImputer:
 
         self.statistics = {
             "numeric": data[self.features["numeric"]].mean().to_dict(),
-            "categorical": data[self.features["categorical"]].
-            mode().iloc[0].to_dict(),
+            "categorical": (
+                data[self.features["categorical"]]
+                .mode()
+                .iloc[0]
+                .to_dict()
+            )
         }
 
         self.is_fitted = True
@@ -83,8 +89,8 @@ class HeartDataImputer:
         # Заполняем пропущенные числовые значения
         for feature in self.features["numeric"]:
             if (
-                feature not in filled_data or
-                filled_data[feature].isna().sum() != 0
+                feature not in filled_data
+                or filled_data[feature].isna().sum() != 0
             ):
                 filled_data[feature] = self.statistics["numeric"][feature]
 
@@ -138,8 +144,11 @@ class HeartBasedPredictor:
     def preprocess(self, features: pd.DataFrame) -> np.ndarray:
         return self.imputer.transform(features[self.feature_order])
 
-    def fit(self, X: Dict[str, List[Any]],
-            y: np.ndarray) -> "HeartBasedPredictor":
+    def fit(
+        self,
+        X: Dict[str, List[Any]],
+        y: np.ndarray
+    ) -> "HeartBasedPredictor":
         df = pd.DataFrame(X)[self.feature_order]
         self.imputer = self.imputer.fit(
             X
@@ -189,7 +198,7 @@ class CardioTrainBasePredictor:
         (если таковые будут присутствовать)
 
         Returns:
-            X (pd.Dataframe) - подготовленный датафрейм для 
+            X (pd.Dataframe) - подготовленный датафрейм для
             получения предсказаний
         """
         self.X_NaN_dict = df.mean().to_dict()  # Заполняем средним
@@ -203,13 +212,16 @@ class CardioTrainBasePredictor:
         если какие-то столбцы будут не заполнены от пользователя
 
         Returns:
-            X (pd.Dataframe) - подготовленный датафрейм для получения предсказаний
+            X (pd.Dataframe) - подготовленный датафрейм
+            для получения предсказаний
         """
         df = df[self.fixed_features]
         # Модуль заполнения пропусков
         for col in self.fixed_features:
-            if (df[col].isna().sum() > 0) and (
-                    self.X_NaN_dict.get(col) is not None):
+            if (
+                df[col].isna().sum() > 0
+                and self.X_NaN_dict.get(col) is not None
+            ):
                 df[col] = self.X_NaN_dict.get(col)
         return df
 
@@ -224,8 +236,11 @@ class CardioTrainBasePredictor:
         kf = KFold(n_splits=self.xgb_params.pop("n_splits", 4))
 
         for train_index, val_index in kf.split(features):
-            X_train, X_val = features.iloc[train_index], features.iloc[val_index]
-            y_train, y_val = y.iloc[train_index], y.iloc[val_index]
+            X_train = features.iloc[train_index]
+            X_val = features.iloc[val_index]
+
+            y_train = y.iloc[train_index]
+            y_val = y.iloc[val_index]
             self.model = XGBClassifier(**self.xgb_params).fit(
                 X_train, y_train, eval_set=[(X_val, y_val)], verbose=False
             )
@@ -271,8 +286,11 @@ class PredictorComposer:
         self.cardio_train_based_predictor.fit(X2, y2)
         return self
 
-    def fit(self, X: Dict[str, List[Any]],
-            y: np.ndarray) -> "PredictorComposer":
+    def fit(
+        self,
+        X: Dict[str, List[Any]],
+        y: np.ndarray
+    ) -> "PredictorComposer":
         self.prepare_dict(X)
         self.heart_based_predictor.fit(X, y)
         self.cardio_train_based_predictor.fit(X, y)
@@ -281,8 +299,11 @@ class PredictorComposer:
     def set_parameters(self, params: Dict[str, Dict[str, Any]]):
         if params is not None:
             if "heart_based" in params:
-                self.heart_based_predictor.log_params.update(
-                    **params["heart_based"])
+                (
+                    self.heart_based_predictor
+                    .log_params
+                    .update(**params["heart_based"])
+                )
             if "cardio_based" in params:
                 self.cardio_train_based_predictor.xgb_params.update(
                     **params["cardio_based"]
@@ -291,6 +312,9 @@ class PredictorComposer:
     def predict(self, features: Dict[str, Any]) -> float:
         self.prepare_dict(features)
         heart_based_predict = self.heart_based_predictor.predict(features)
-        cardio_train_based_predict = self.cardio_train_based_predictor.predict(
-            features)
+        cardio_train_based_predict = (
+            self
+            .cardio_train_based_predictor
+            .predict(features)
+        )
         return float((heart_based_predict + cardio_train_based_predict) / 2)

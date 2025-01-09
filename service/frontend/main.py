@@ -42,7 +42,8 @@ st.write(
 
 def process_main_page():
     """
-    Рендеринг основных элементов страницы (заголовки, изображения, sidebar, кнопки)
+    Рендеринг основных элементов страницы
+    (заголовки, изображения, sidebar, кнопки)
     """
     image = Image.open("data/ded.jpg")
     st.image(image)
@@ -56,7 +57,8 @@ def process_main_page():
     participants_expander = st.expander("Participants")
 
     with fit_expander:
-        st.write("## Обучить модель с заданными гиперпараметрами на ваших данных")
+        st.write("## Обучить модель с заданными \
+                 гиперпараметрами на ваших данных")
         model_id = st.text_input(
             "Введите ID новой модели", placeholder="best_model_in_the_world_1"
         )
@@ -67,7 +69,10 @@ def process_main_page():
             label="Загрузить JSON файл c гиперпараметрами", type=["json"]
         )
         timeout = st.number_input(
-            "Введите время для таймаута (сек)", min_value=1, max_value=10000, value=10
+            "Введите время для таймаута (сек)",
+            min_value=1,
+            max_value=10000,
+            value=10
         )
         send_fit_request = st.button(
             "Отправить запрос", key="send_fit_request")
@@ -75,7 +80,8 @@ def process_main_page():
         if send_fit_request:
             logger.debug("'Fit' button clicked")
             red_flag = (
-                False  # если не хватает данных, то не даст отправить запрос к серверу
+                False
+                # если не хватает данных, то не даст отправить запрос к серверу
             )
             if model_id is None or model_id == "":
                 logger.error("No model_id in 'Fit'!")
@@ -111,7 +117,9 @@ def process_main_page():
                 try:
                     logger.debug("'Fit' request has been sent")
                     fitting_result = requests.post(
-                        "http://fastapi:8000/model/fit", json=fit_json_data, timeout=10
+                        "http://fastapi:8000/model/fit",
+                        json=fit_json_data,
+                        timeout=10
                     ).json()
                     logger.debug("Got response from API for /fit")
                     if "message" in fitting_result:
@@ -129,13 +137,16 @@ def process_main_page():
                     st.write("#### Не удалось выполнить запрос к API: ")
                     st.write(
                         str(err)
-                    )  # если не хотим выводить ошибку на клиент - закомментить эту строчку
+                    )  # если не хотим выводить ошибку на клиент -
+                    # закомментить эту строчку
 
     with set_model_expander:
         st.write(
-            "## Установите модель в качестве активной для дальнейших предсказаний")
+            "## Установите модель в качестве активной \
+            для дальнейших предсказаний")
         model_id = st.text_input(
-            "Введите ID обученной модели", placeholder="best_model_in_the_world_1"
+            "Введите ID обученной модели",
+            placeholder="best_model_in_the_world_1"
         )
         send_set_model_request = st.button(
             "Отправить запрос", key="send_set_model_request"
@@ -166,8 +177,8 @@ def process_main_page():
                                 set_model_result["status"])
                         )
                         st.write(
-                            f"#### Статус установки модели в качестве активной: \
-                                {set_model_result['status']}"
+                            f"#### Статус установки модели \
+                            в качестве активной: {set_model_result['status']}"
                         )
                 else:
                     logger.debug("Setting model: %s", str(set_model_result))
@@ -179,15 +190,18 @@ def process_main_page():
                 st.write("#### Не удалось выполнить запрос к API: ")
                 st.write(
                     str(err)
-                )  # если не хотим выводить ошибку на клиент - закомментить эту строчку
+                )  # если не хотим выводить ошибку на клиент -
+                # закомментить эту строчку
 
     with update_model_expander:
         st.write("## Обновление существующей модели новыми данными")
         model_id = st.text_input(
-            "Введите ID модели для обновления", placeholder="best_model_in_the_world_1"
+            "Введите ID модели для обновления",
+            placeholder="best_model_in_the_world_1"
         )
         train_data = st.file_uploader(
-            label="Загрузить CSV файл c новыми тренировочными данными", type=["csv"]
+            label="Загрузить CSV файл c новыми тренировочными данными",
+            type=["csv"]
         )
         send_update_model_request = st.button(
             "Отправить запрос", key="send_update_model_request"
@@ -246,18 +260,21 @@ def process_main_page():
                         st.write(update_model_result)
                 except ServerException as err:
                     logger.error(
-                        "Cant get response from API for /update_model/{model_id}: %s",
+                        "Cant get response from API for \
+                        /update_model/{model_id}: %s",
                         str(err),
                     )
                     st.write("#### Не удалось выполнить запрос к API: ")
                     st.write(
                         str(err)
-                    )  # если не хотим выводить ошибку на клиент - закомментить эту строчку
+                    )  # если не хотим выводить ошибку на клиент -
+                    # закомментить эту строчку
 
     with predict_expander:
         st.write("## Предсказание на основе данных пациентов")
         st.write(
-            "Требуется заполнить sidebar: загрузить CSV файл или выставить параметры вручную"
+            "Требуется заполнить sidebar: загрузить CSV файл \
+            или выставить параметры вручную"
         )
         send_predict_request = st.button(
             "Отправить запрос", key="send_predict_request")
@@ -276,7 +293,8 @@ def process_main_page():
                 if "predictions" in predict_model_result:
                     pred = [
                         (
-                            "У вас обнаружено возможное сердечное заболевание! Срочно обратитесь к врачу!"
+                            "У вас обнаружено возможное сердечное \
+                            заболевание! Срочно обратитесь к врачу!"
                             if value["prediction"] == 1
                             else "У вас не выявлено сердечных заболеваний"
                         )
@@ -302,12 +320,15 @@ def process_main_page():
                 st.write("#### Не удалось выполнить запрос к API: ")
                 st.write(
                     str(err)
-                )  # если не хотим выводить ошибку на клиент - закомментить эту строчку
+                )  # если не хотим выводить ошибку на клиент -
+                # закомментить эту строчку
 
     with predict_proba_expander:
-        st.write("## Вероятность сердечного заболевания на основе данных пациентов")
+        st.write("## Вероятность сердечного заболевания \
+                 на основе данных пациентов")
         st.write(
-            "Требуется заполнить sidebar: загрузить CSV файл или выставить параметры вручную"
+            "Требуется заполнить sidebar: загрузить CSV файл \
+            или выставить параметры вручную"
         )
         send_predict_proba_request = st.button(
             "Отправить запрос", key="send_predict_proba_request"
@@ -351,10 +372,12 @@ def process_main_page():
                 st.write("#### Не удалось выполнить запрос к API: ")
                 st.write(
                     str(err)
-                )  # если не хотим выводить ошибку на клиент - закомментить эту строчку
+                )  # если не хотим выводить ошибку на клиент -
+                # закомментить эту строчку
 
     with models_expander:
-        st.write("##  Получение списка всех доступных моделей и информации о них")
+        st.write("##  Получение списка всех доступных моделей \
+                 и информации о них")
         send_models_request = st.button(
             "Отправить запрос", key="send_models_request")
         if send_models_request:
@@ -377,7 +400,8 @@ def process_main_page():
                 st.write("#### Не удалось выполнить запрос к API: ")
                 st.write(
                     str(err)
-                )  # если не хотим выводить ошибку на клиент - закомментить эту строчку
+                )  # если не хотим выводить ошибку на клиент -
+                # закомментить эту строчку
 
     with participants_expander:
         st.write("## Информация об участниках проекта")
@@ -402,7 +426,8 @@ def process_main_page():
                 st.write("#### Не удалось выполнить запрос к API: ")
                 st.write(
                     str(err)
-                )  # если не хотим выводить ошибку на клиент - закомментить эту строчку
+                )  # если не хотим выводить ошибку на клиент -
+                # закомментить эту строчку
 
 
 # Ниже представлены функции для отрисовки полученных данных от FastAPI
@@ -447,7 +472,8 @@ def process_side_bar_inputs():
 
 def sidebar_input_features():
     """
-    Рендеринг формы для загрузки данных через csv файл или через выбор параметров вручную
+    Рендеринг формы для загрузки данных через csv файл
+    или через выбор параметров вручную
     """
 
     uploaded_file = st.sidebar.file_uploader(
@@ -501,8 +527,7 @@ def sidebar_input_features():
             "Не могу сказать точно",
             "Норма",
             "Наличие аномалии зубца ST-T (инверсия зубца T и/или подъем или снижение ST > 0,05 мВ)",
-            "Демонстрация вероятной или определенной \
-                гипертрофии левого желудочка по критериям Эстеса",
+            "Демонстрация вероятной или определенной гипертрофии левого желудочка по критериям Эстеса",
         ),
     )
     maximum_heart_rate_achieved = st.sidebar.number_input(
@@ -543,10 +568,8 @@ def sidebar_input_features():
         "Атипичная стенокардия": 1,
         "Неангинозная боль": 2,
         "Норма": 0,
-        "Наличие аномалии зубца ST-T \
-            (инверсия зубца T и/или подъем или снижение ST > 0,05 мВ)": 1,
-        "Демонстрация вероятной или определенной гипертрофии \
-            левого желудочка по критериям Эстеса": 2,
+        "Наличие аномалии зубца ST-T (инверсия зубца T и/или подъем или снижение ST > 0,05 мВ)": 1,
+        "Демонстрация вероятной или определенной гипертрофии левого желудочка по критериям Эстеса": 2,
         "Плоский": 1,
         "Восходящий": 0,
         "Нисходящий": 2,
