@@ -24,7 +24,7 @@
 │   ├── backend                         # Сервисная часть
 │   │   ├── api                         # Директория с API эндпоинтами и конфигурациями моделей
 │   │   │   ├── model
-│   │   │   │   └── model.py
+│   │   │   │   └── model_desc.py
 │   │   │   ├── model_classes
 │   │   │   │   └── model_classes.py
 │   │   │   ├── model_service
