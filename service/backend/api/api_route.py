@@ -38,6 +38,21 @@ async def get_models():
     logger.debug("Got request from client to /models")
     return model_service.get_models()
 
+@router.get("/model_metrics/{model_id}", response_model=MetricsResponse)
+async def get_model_metrics(model_id: str):
+    """
+    Получение метрик модели
+    """
+    logger.debug("Got request from client to /model_metrics")
+    return model_service.get_model_metrics(model_id)
+
+@router.get("/all_models_metrics", response_model=BatchMetricsResponse)
+async def get_all_models_metrics():
+    """
+    Получение метрик всех моделей
+    """
+    logger.debug("Got request from client to /all_models_metrics")
+    return model_service.get_all_models_metrics()
 
 @router.post("/set_model", response_model=SetModelResponse)
 async def set_model(request: SetModelRequest):

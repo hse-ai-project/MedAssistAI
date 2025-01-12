@@ -114,6 +114,25 @@ class ModelsResponse(BaseModel):
     models: List[ModelInfo]
     active_model_id: Optional[str]
 
+class MetricsResponse(BaseModel):
+    data_metrics: dict
+    fpr_xgb: List[float]
+    tpr_xgb: List[float]
+    threshholds_roc_xgb: List[float]
+    fpr_lr: List[float]
+    tpr_lr: List[float]
+    threshholds_roc_lr: List[float]
+    precision_lr: List[float]
+    recall_lr: List[float]
+    threshholds_pr_lr: List[float]
+    precision_xgb: List[float]
+    recall_xgb: List[float]
+    threshholds_pr_xgb: List[float]
+
+
+class BatchMetricsResponse(BaseModel):
+    metrics_responses: List[MetricsResponse]
+
 
 class TrainData(BaseModel):
     features: Dict[str, List[Any]]

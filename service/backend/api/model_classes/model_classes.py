@@ -270,6 +270,47 @@ class PredictorComposer:
     ) -> "PredictorComposer":
         self.heart_based_predictor.fit(X1, y1)
         self.cardio_train_based_predictor.fit(X2, y2)
+
+        # LR metrics
+        LR_predictions = self.heart_based_predictor.predict(X1)
+        LR_acc = accuracy_score(y1, LR_predictions.astype(int))
+        LR_prec = precision_score(y1, LR_predictions.astype(int))
+        LR_rec = recall_score(y1, LR_predictions.astype(int))
+        LR_f1 = f1_score(y1, LR_predictions.astype(int))
+        LR_auc = roc_auc_score(y1, LR_predictions.astype(int))
+        LR_kappa = cohen_kappa_score(y1, LR_predictions.astype(int))
+
+        # XGB metrics
+        XGB_predictions = self.cardio_train_based_predictor.predict(X2)
+        XGB_acc = accuracy_score(y2, XGB_predictions.astype(int))
+        XGB_prec = precision_score(y2, XGB_predictions.astype(int))
+        XGB_rec = recall_score(y2, XGB_predictions.astype(int))
+        XGB_f1 = f1_score(y2, XGB_predictions.astype(int))
+        XGB_auc = roc_auc_score(y2, XGB_predictions.astype(int))
+        XGB_kappa = cohen_kappa_score(y2, XGB_predictions.astype(int))
+
+        # Combined metrics
+        acc = np.mean(LR_acc, XGB_acc)
+        prec = np.mean(LR_prec, XGB_prec)
+        rec = np.mean(LR_rec, XGB_rec)
+        f1 = np.mean(LR_f1, XGB_f1)
+        rocauc = np.mean(LR_auc, XGB_auc)
+        kappa = np.mean(LR_kappa, XGB_kappa)
+
+        self.data_metrics = pd.DataFrame({  'Accuracy score': acc,
+                                            'Precision score': prec,
+                                            'Recall score': rec,
+                                            'F1 score': f1,
+                                            'ROC-AUC score': rocauc,
+                                            'Cohen-Kappa score': kappa}, index=[0])
+        
+        # graphs' points
+        self.fpr_xgb, self.tpr_xgb, self.threshholds_roc_xgb = roc_curve(y2, XGB_predictions)
+        self.fpr_lr, self.tpr_lr, self.threshholds_roc_lr = roc_curve(y1, LR_predictions)
+
+        self.precision_lr, self.recall_lr, self.threshholds_pr_lr = precision_recall_curve(y1, LR_predictions)
+        self.precision_xgb, self.recall_xgb, self.threshholds_pr_xgb = precision_recall_curve(y2, XGB_predictions)
+
         return self
 
     def fit(self, X: Dict[str, List[Any]],
@@ -312,14 +353,11 @@ class PredictorComposer:
                                             'Cohen-Kappa score': kappa}, index=[0])
         
         # graphs' points
-        self.fpr_xgb, self.tpr_xgb, self.threshholds_roc_lr = roc_curve(y, LR_predictions)
-        self.fpr_lr, self.tpr_lr, self.threshholds_roc_xgb = roc_curve(y, XGB_predictions)
+        self.fpr_xgb, self.tpr_xgb, self.threshholds_roc_xgb = roc_curve(y, XGB_predictions)
+        self.fpr_lr, self.tpr_lr, self.threshholds_roc_lr = roc_curve(y, LR_predictions)
 
-        self.precision, self.recall, self.threshholds_pr_lr = precision_recall_curve(y, LR_predictions)
-        self.fpr_lr, self.tpr_lr, self.threshholds_pr_xgb = precision_recall_curve(y, XGB_predictions)
-
-        #self.roc_auc_xgb = auc(fpr_xgb, tpr_xgb)
-        #self.roc_auc_log = auc(fpr_lr, tpr_lr)
+        self.precision_lr, self.recall_lr, self.threshholds_pr_lr = precision_recall_curve(y, LR_predictions)
+        self.precision_xgb, self.recall_xgb, self.threshholds_pr_xgb = precision_recall_curve(y, XGB_predictions)
 
         return self
 

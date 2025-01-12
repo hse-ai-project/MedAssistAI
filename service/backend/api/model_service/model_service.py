@@ -168,6 +168,70 @@ class ModelService:
         return SetModelResponse(
             status="success", previous_model_id=previous_model_id, new_model_id=model_id
         )
+    
+    def get_model_metrics(self, model_id: str) -> MetricsResponse:
+        "Get model's metrics by id"
+        if model_id not in self.models:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Model {model_id} not found")
+
+        try:
+            model = self.models[model_id]["model"]
+
+            return MetricsResponse(
+                data_metrics=model.data_metrics.to_dict('list'),
+                fpr_xgb=model.fpr_xgb.tolist(),
+                tpr_xgb=model.tpr_xgb.tolist(),
+                threshholds_roc_xgb=model.threshholds_roc_xgb.tolist(),
+                fpr_lr=model.fpr_lr.tolist(),
+                tpr_lr=model.tpr_lr.tolist(),
+                threshholds_roc_lr=model.threshholds_roc_lr.tolist(),
+                precision_lr=model.precision_lr.tolist(),
+                recall_lr=model.recall_lr.tolist(),
+                threshholds_pr_lr=model.threshholds_pr_lr.tolist(),
+                precision_xgb=model.precision_xgb.tolist(),
+                recall_xgb=model.recall_xgb.tolist(),
+                threshholds_pr_xgb=model.threshholds_pr_xgb.tolist()
+            )
+         
+        except Exception as e:
+            raise HTTPException(
+                status_code=500,
+                detail=f"Get metrics error: {str(e)}")
+    
+    def get_all_models_metrics(self) -> BatchMetricsResponse:
+        "Get all models metrics"
+        try:
+            metrics = []
+
+            for model_data in self.models:
+                model = model_data["model"]
+
+                response = MetricsResponse(
+                    data_metrics=model.data_metrics.to_dict('list'),
+                    fpr_xgb=model.fpr_xgb.tolist(),
+                    tpr_xgb=model.tpr_xgb.tolist(),
+                    threshholds_roc_xgb=model.threshholds_roc_xgb.tolist(),
+                    fpr_lr=model.fpr_lr.tolist(),
+                    tpr_lr=model.tpr_lr.tolist(),
+                    threshholds_roc_lr=model.threshholds_roc_lr.tolist(),
+                    precision_lr=model.precision_lr.tolist(),
+                    recall_lr=model.recall_lr.tolist(),
+                    threshholds_pr_lr=model.threshholds_pr_lr.tolist(),
+                    precision_xgb=model.precision_xgb.tolist(),
+                    recall_xgb=model.recall_xgb.tolist(),
+                    threshholds_pr_xgb=model.threshholds_pr_xgb.tolist()
+                )
+
+                metrics.append(response)
+
+            return BatchMetricsResponse(metrics)
+         
+        except Exception as e:
+            raise HTTPException(
+                status_code=500,
+                detail=f"Get all models metrics error: {str(e)}")        
 
     def update_model(self, model_id: str,
                      train_data: TrainData) -> FitResponse:
