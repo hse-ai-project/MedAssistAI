@@ -6,6 +6,7 @@ from sklearn.model_selection import KFold
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LogisticRegression
 from xgboost import XGBClassifier
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score, cohen_kappa_score, roc_curve, auc
 
 
 class HeartDataImputer:
@@ -276,6 +277,46 @@ class PredictorComposer:
         self.prepare_dict(X)
         self.heart_based_predictor.fit(X, y)
         self.cardio_train_based_predictor.fit(X, y)
+
+        # LR metrics
+        LR_predictions = self.heart_based_predictor.predict(X)
+        LR_acc = accuracy_score(y, LR_predictions.astype(int))
+        LR_prec = precision_score(y, LR_predictions.astype(int))
+        LR_rec = recall_score(y, LR_predictions.astype(int))
+        LR_f1 = f1_score(y, LR_predictions.astype(int))
+        LR_auc = roc_auc_score(y, LR_predictions.astype(int))
+        LR_kappa = cohen_kappa_score(y, LR_predictions.astype(int))
+
+        # XGB metrics
+        XGB_predictions = self.cardio_train_based_predictor.predict(X)
+        XGB_acc = accuracy_score(y, XGB_predictions.astype(int))
+        XGB_prec = precision_score(y, XGB_predictions.astype(int))
+        XGB_rec = recall_score(y, XGB_predictions.astype(int))
+        XGB_f1 = f1_score(y, XGB_predictions.astype(int))
+        XGB_auc = roc_auc_score(y, XGB_predictions.astype(int))
+        XGB_kappa = cohen_kappa_score(y, XGB_predictions.astype(int))
+
+        # Combined metrics
+        acc = np.mean(LR_acc, XGB_acc)
+        prec = np.mean(LR_prec, XGB_prec)
+        rec = np.mean(LR_rec, XGB_rec)
+        f1 = np.mean(LR_f1, XGB_f1)
+        rocauc = np.mean(LR_auc, XGB_auc)
+        kappa = np.mean(LR_kappa, XGB_kappa)
+
+        self.data_metrics = pd.DataFrame({  'Accuracy score': acc,
+                                            'Precision score': prec,
+                                            'Recall score': rec,
+                                            'F1 score': f1,
+                                            'ROC-AUC score': rocauc,
+                                            'Cohen-Kappa score': kappa}, index=[0])
+        
+        # graphs' points
+        fpr_xgb, tpr_xgb, _ = roc_curve(y, LR_predictions)
+        fpr_lr, tpr_lr, _ = roc_curve(y, XGB_predictions)
+        self.roc_auc_xgb = auc(fpr_xgb, tpr_xgb)
+        self.roc_auc_log = auc(fpr_lr, tpr_lr)
+
         return self
 
     def set_parameters(self, params: Dict[str, Dict[str, Any]]):
