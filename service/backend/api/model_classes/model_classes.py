@@ -6,7 +6,7 @@ from sklearn.model_selection import KFold
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LogisticRegression
 from xgboost import XGBClassifier
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score, cohen_kappa_score, roc_curve, auc
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score, cohen_kappa_score, roc_curve, precision_recall_curve
 
 
 class HeartDataImputer:
@@ -312,10 +312,14 @@ class PredictorComposer:
                                             'Cohen-Kappa score': kappa}, index=[0])
         
         # graphs' points
-        fpr_xgb, tpr_xgb, _ = roc_curve(y, LR_predictions)
-        fpr_lr, tpr_lr, _ = roc_curve(y, XGB_predictions)
-        self.roc_auc_xgb = auc(fpr_xgb, tpr_xgb)
-        self.roc_auc_log = auc(fpr_lr, tpr_lr)
+        self.fpr_xgb, self.tpr_xgb, self.threshholds_roc_lr = roc_curve(y, LR_predictions)
+        self.fpr_lr, self.tpr_lr, self.threshholds_roc_xgb = roc_curve(y, XGB_predictions)
+
+        self.precision, self.recall, self.threshholds_pr_lr = precision_recall_curve(y, LR_predictions)
+        self.fpr_lr, self.tpr_lr, self.threshholds_pr_xgb = precision_recall_curve(y, XGB_predictions)
+
+        #self.roc_auc_xgb = auc(fpr_xgb, tpr_xgb)
+        #self.roc_auc_log = auc(fpr_lr, tpr_lr)
 
         return self
 
