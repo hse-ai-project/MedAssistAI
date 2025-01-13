@@ -151,9 +151,9 @@ class HeartBasedPredictor:
         self.model = LogisticRegression(**self.log_params).fit(X_processed, y)
         return self
 
-    def predict(self, features: Dict[str, Any]) -> float:
-        X = self.preprocess(pd.DataFrame(features, index=[0]))
-        return float(self.model.predict_proba(X)[0][1])
+    def predict(self, features: Dict[str, Any]):
+        X = self.preprocess(pd.DataFrame(features))
+        return self.model.predict_proba(X)[:,1]
 
 
 class CardioTrainBasePredictor:
@@ -240,7 +240,7 @@ class CardioTrainBasePredictor:
             np.array - массив numpy вероятностями заболевания пользователя,
             округлёнными до сотых.
         """
-        df = self.preprocessing_transform(pd.DataFrame(X, index=[0]))
+        df = self.preprocessing_transform(pd.DataFrame(X))
         return 1 / (
             1 + np.exp(-self.model.predict(df, output_margin=True))
         )  # Преобразование логита в условную вероятность
@@ -273,29 +273,29 @@ class PredictorComposer:
 
         # LR metrics
         LR_predictions = self.heart_based_predictor.predict(X1)
-        LR_acc = accuracy_score(y1, LR_predictions.astype(int))
-        LR_prec = precision_score(y1, LR_predictions.astype(int))
-        LR_rec = recall_score(y1, LR_predictions.astype(int))
-        LR_f1 = f1_score(y1, LR_predictions.astype(int))
-        LR_auc = roc_auc_score(y1, LR_predictions.astype(int))
-        LR_kappa = cohen_kappa_score(y1, LR_predictions.astype(int))
+        LR_acc = accuracy_score(y1, np.round(LR_predictions,0))
+        LR_prec = precision_score(y1, np.round(LR_predictions,0))
+        LR_rec = recall_score(y1, np.round(LR_predictions,0))
+        LR_f1 = f1_score(y1, np.round(LR_predictions,0))
+        LR_auc = roc_auc_score(y1, np.round(LR_predictions,0))
+        LR_kappa = cohen_kappa_score(y1, np.round(LR_predictions,0))
 
         # XGB metrics
         XGB_predictions = self.cardio_train_based_predictor.predict(X2)
-        XGB_acc = accuracy_score(y2, XGB_predictions.astype(int))
-        XGB_prec = precision_score(y2, XGB_predictions.astype(int))
-        XGB_rec = recall_score(y2, XGB_predictions.astype(int))
-        XGB_f1 = f1_score(y2, XGB_predictions.astype(int))
-        XGB_auc = roc_auc_score(y2, XGB_predictions.astype(int))
-        XGB_kappa = cohen_kappa_score(y2, XGB_predictions.astype(int))
+        XGB_acc = accuracy_score(y2, np.round(XGB_predictions,0))
+        XGB_prec = precision_score(y2, np.round(XGB_predictions,0))
+        XGB_rec = recall_score(y2, np.round(XGB_predictions,0))
+        XGB_f1 = f1_score(y2, np.round(XGB_predictions,0))
+        XGB_auc = roc_auc_score(y2, np.round(XGB_predictions,0))
+        XGB_kappa = cohen_kappa_score(y2, np.round(XGB_predictions,0))
 
         # Combined metrics
-        acc = np.mean(LR_acc, XGB_acc)
-        prec = np.mean(LR_prec, XGB_prec)
-        rec = np.mean(LR_rec, XGB_rec)
-        f1 = np.mean(LR_f1, XGB_f1)
-        rocauc = np.mean(LR_auc, XGB_auc)
-        kappa = np.mean(LR_kappa, XGB_kappa)
+        acc = np.mean([LR_acc, XGB_acc])
+        prec = np.mean([LR_prec, XGB_prec])
+        rec = np.mean([LR_rec, XGB_rec])
+        f1 = np.mean([LR_f1, XGB_f1])
+        rocauc = np.mean([LR_auc, XGB_auc])
+        kappa = np.mean([LR_kappa, XGB_kappa])
 
         self.data_metrics = pd.DataFrame({  'Accuracy score': acc,
                                             'Precision score': prec,
@@ -303,7 +303,6 @@ class PredictorComposer:
                                             'F1 score': f1,
                                             'ROC-AUC score': rocauc,
                                             'Cohen-Kappa score': kappa}, index=[0])
-        
         # graphs' points
         self.fpr_xgb, self.tpr_xgb, self.threshholds_roc_xgb = roc_curve(y2, XGB_predictions)
         self.fpr_lr, self.tpr_lr, self.threshholds_roc_lr = roc_curve(y1, LR_predictions)
@@ -321,29 +320,29 @@ class PredictorComposer:
 
         # LR metrics
         LR_predictions = self.heart_based_predictor.predict(X)
-        LR_acc = accuracy_score(y, LR_predictions.astype(int))
-        LR_prec = precision_score(y, LR_predictions.astype(int))
-        LR_rec = recall_score(y, LR_predictions.astype(int))
-        LR_f1 = f1_score(y, LR_predictions.astype(int))
-        LR_auc = roc_auc_score(y, LR_predictions.astype(int))
-        LR_kappa = cohen_kappa_score(y, LR_predictions.astype(int))
+        LR_acc = accuracy_score(y, np.round(LR_predictions,0))
+        LR_prec = precision_score(y, np.round(LR_predictions,0))
+        LR_rec = recall_score(y, np.round(LR_predictions,0))
+        LR_f1 = f1_score(y, np.round(LR_predictions,0))
+        LR_auc = roc_auc_score(y, np.round(LR_predictions,0))
+        LR_kappa = cohen_kappa_score(y, np.round(LR_predictions,0))
 
         # XGB metrics
         XGB_predictions = self.cardio_train_based_predictor.predict(X)
-        XGB_acc = accuracy_score(y, XGB_predictions.astype(int))
-        XGB_prec = precision_score(y, XGB_predictions.astype(int))
-        XGB_rec = recall_score(y, XGB_predictions.astype(int))
-        XGB_f1 = f1_score(y, XGB_predictions.astype(int))
-        XGB_auc = roc_auc_score(y, XGB_predictions.astype(int))
-        XGB_kappa = cohen_kappa_score(y, XGB_predictions.astype(int))
+        XGB_acc = accuracy_score(y, np.round(XGB_predictions,0))
+        XGB_prec = precision_score(y, np.round(XGB_predictions,0))
+        XGB_rec = recall_score(y, np.round(XGB_predictions,0))
+        XGB_f1 = f1_score(y, np.round(XGB_predictions,0))
+        XGB_auc = roc_auc_score(y, np.round(XGB_predictions,0))
+        XGB_kappa = cohen_kappa_score(y, np.round(XGB_predictions,0))
 
         # Combined metrics
-        acc = np.mean(LR_acc, XGB_acc)
-        prec = np.mean(LR_prec, XGB_prec)
-        rec = np.mean(LR_rec, XGB_rec)
-        f1 = np.mean(LR_f1, XGB_f1)
-        rocauc = np.mean(LR_auc, XGB_auc)
-        kappa = np.mean(LR_kappa, XGB_kappa)
+        acc = np.mean([LR_acc, XGB_acc])
+        prec = np.mean([LR_prec, XGB_prec])
+        rec = np.mean([LR_rec, XGB_rec])
+        f1 = np.mean([LR_f1, XGB_f1])
+        rocauc = np.mean([LR_auc, XGB_auc])
+        kappa = np.mean([LR_kappa, XGB_kappa])
 
         self.data_metrics = pd.DataFrame({  'Accuracy score': acc,
                                             'Precision score': prec,
@@ -371,9 +370,9 @@ class PredictorComposer:
                     **params["cardio_based"]
                 )
 
-    def predict(self, features: Dict[str, Any]) -> float:
+    def predict(self, features: Dict[str, Any]):
         self.prepare_dict(features)
         heart_based_predict = self.heart_based_predictor.predict(features)
         cardio_train_based_predict = self.cardio_train_based_predictor.predict(
             features)
-        return float((heart_based_predict + cardio_train_based_predict) / 2)
+        return ((heart_based_predict + cardio_train_based_predict) / 2)
