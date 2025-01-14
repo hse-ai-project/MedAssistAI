@@ -535,8 +535,7 @@ def process_main_page():
                     try:
                         logger.debug("'Metrics' request has been sent")
                         model_metrics_result = requests.get(
-                            "http://fastapi:8000/model/model_metrics/%s",
-                            model_id,
+                            f"http://fastapi:8000/model/model_metrics/{model_id}",
                             timeout=10,
                         ).json()
                         logger.debug("Got response from API for /model_metrics")
