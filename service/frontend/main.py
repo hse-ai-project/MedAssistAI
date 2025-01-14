@@ -9,6 +9,7 @@ import requests
 import pandas as pd
 import streamlit as st
 from PIL import Image
+import plotly.graph_objects as go
 
 
 class ServerException(Exception):
@@ -21,7 +22,10 @@ def setup_logger():
     if not logger_.hasHandlers():
         logger_.setLevel(logging.DEBUG)
         handler = TimedRotatingFileHandler(
-            "logs/logs.log", when="D", interval=1)
+            "logs/logs.log",
+            when="D",
+            interval=1
+        )
         formatter = logging.Formatter(
             "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
         )
@@ -34,15 +38,17 @@ logger = setup_logger()
 
 st.write(
     """
-        # 👨🏼‍⚕️ Предсказание наличия сердечных заболевания
-        🔬 Определяем, вероятность сердечных заболеваний на основе информации о пациенте (пациентах)
-        """
+    # 👨🏼‍⚕️ Предсказание наличия сердечных заболевания
+    🔬 Определяем, вероятность сердечных заболеваний
+    на основе информации о пациенте (пациентах)
+    """
 )
 
 
 def process_main_page():
     """
-    Рендеринг основных элементов страницы (заголовки, изображения, sidebar, кнопки)
+    Рендеринг основных элементов страницы
+    (заголовки, изображения, sidebar, кнопки)
     """
     image = Image.open("data/ded.jpg")
     st.image(image)
@@ -52,11 +58,12 @@ def process_main_page():
     predict_expander = st.expander("Predict")
     predict_proba_expander = st.expander("Predict proba")
     models_expander = st.expander("Models")
+    metrics_expander = st.expander("Metrics")
     update_model_expander = st.expander("Update model")
     participants_expander = st.expander("Participants")
 
     with fit_expander:
-        st.write("## Обучить модель с заданными гиперпараметрами на ваших данных")
+        st.write("""## Обучить модель с заданными гиперпараметрами на ваших данных""")
         model_id = st.text_input(
             "Введите ID новой модели", placeholder="best_model_in_the_world_1"
         )
@@ -67,15 +74,21 @@ def process_main_page():
             label="Загрузить JSON файл c гиперпараметрами", type=["json"]
         )
         timeout = st.number_input(
-            "Введите время для таймаута (сек)", min_value=1, max_value=10000, value=10
+            "Введите время для таймаута (сек)",
+            min_value=1,
+            max_value=10000,
+            value=10
         )
         send_fit_request = st.button(
-            "Отправить запрос", key="send_fit_request")
+            "Отправить запрос",
+            key="send_fit_request"
+        )
 
         if send_fit_request:
             logger.debug("'Fit' button clicked")
+            # если не хватает данных, то не даст отправить запрос к серверу
             red_flag = (
-                False  # если не хватает данных, то не даст отправить запрос к серверу
+                False
             )
             if model_id is None or model_id == "":
                 logger.error("No model_id in 'Fit'!")
@@ -111,31 +124,33 @@ def process_main_page():
                 try:
                     logger.debug("'Fit' request has been sent")
                     fitting_result = requests.post(
-                        "http://fastapi:8000/model/fit", json=fit_json_data, timeout=10
+                        "http://fastapi:8000/model/fit",
+                        json=fit_json_data,
+                        timeout=10
                     ).json()
                     logger.debug("Got response from API for /fit")
                     if "message" in fitting_result:
                         logger.debug(
-                            "Fitting result: %s", str(
-                                fitting_result["message"])
+                            "Fitting result: %s",
+                            str(fitting_result["message"])
                         )
                         st.write(f"#### {fitting_result['message']}")
                     else:
                         logger.debug("Fitting result: %s", str(fitting_result))
                         st.write(fitting_result)
                 except ServerException as err:
-                    logger.error(
-                        "Cant get response from API for /fit: %s", str(err))
+                    logger.error("Cant get response from API for /fit: %s",
+                                 str(err))
                     st.write("#### Не удалось выполнить запрос к API: ")
                     st.write(
                         str(err)
-                    )  # если не хотим выводить ошибку на клиент - закомментить эту строчку
+                    )
 
     with set_model_expander:
-        st.write(
-            "## Установите модель в качестве активной для дальнейших предсказаний")
+        st.write("""## Установите модель в качестве активной для дальнейших предсказаний""")
         model_id = st.text_input(
-            "Введите ID обученной модели", placeholder="best_model_in_the_world_1"
+            "Введите ID обученной модели",
+            placeholder="best_model_in_the_world_1"
         )
         send_set_model_request = st.button(
             "Отправить запрос", key="send_set_model_request"
@@ -158,36 +173,35 @@ def process_main_page():
                 elif "status" in set_model_result:
                     if set_model_result["status"] == "success":
                         logger.debug("Success setting model as active")
-                        st.write(
-                            f"#### Модель {model_id} теперь является активной")
+                        st.write(f"""#### Модель {model_id} теперь является активной""")
                     else:
                         logger.debug(
-                            "Setting model: %s", str(
-                                set_model_result["status"])
+                            "Setting model: %s",
+                            str(set_model_result["status"])
                         )
                         st.write(
-                            f"#### Статус установки модели в качестве активной: \
-                                {set_model_result['status']}"
+                            f"""#### Статус установки модели в качестве активной: {set_model_result['status']}"""
                         )
                 else:
                     logger.debug("Setting model: %s", str(set_model_result))
                     st.write(set_model_result)
             except ServerException as err:
-                logger.error(
-                    "Cant get response from API for /set_model: %s",
-                    str(err))
+                logger.error("Cant get response from API for /set_model: %s",
+                             str(err))
                 st.write("#### Не удалось выполнить запрос к API: ")
                 st.write(
                     str(err)
-                )  # если не хотим выводить ошибку на клиент - закомментить эту строчку
+                )
 
     with update_model_expander:
         st.write("## Обновление существующей модели новыми данными")
         model_id = st.text_input(
-            "Введите ID модели для обновления", placeholder="best_model_in_the_world_1"
+            "Введите ID модели для обновления",
+            placeholder="best_model_in_the_world_1"
         )
         train_data = st.file_uploader(
-            label="Загрузить CSV файл c новыми тренировочными данными", type=["csv"]
+            label="Загрузить CSV файл c новыми тренировочными данными",
+            type=["csv"]
         )
         send_update_model_request = st.button(
             "Отправить запрос", key="send_update_model_request"
@@ -225,24 +239,19 @@ def process_main_page():
                         json=update_json_data,
                         timeout=10,
                     ).json()
-                    logger.debug(
-                        "Got response from API for /update_model/%s", model_id)
+                    logger.debug("Got response from API for /update_model/%s", model_id)
                     if "message" in update_model_result:
                         logger.debug(
-                            "Updating model: %s", str(
-                                update_model_result["message"])
+                            "Updating model: %s", str(update_model_result["message"])
                         )
                         st.write(f"#### {update_model_result['message']}")
                     elif "detail" in update_model_result:
                         logger.debug(
-                            "Updating model: %s", str(
-                                update_model_result["detail"])
+                            "Updating model: %s", str(update_model_result["detail"])
                         )
                         st.write(f"#### {update_model_result['detail']}")
                     else:
-                        logger.debug(
-                            "Updating model: %s",
-                            str(update_model_result))
+                        logger.debug("Updating model: %s", str(update_model_result))
                         st.write(update_model_result)
                 except ServerException as err:
                     logger.error(
@@ -259,8 +268,7 @@ def process_main_page():
         st.write(
             "Требуется заполнить sidebar: загрузить CSV файл или выставить параметры вручную"
         )
-        send_predict_request = st.button(
-            "Отправить запрос", key="send_predict_request")
+        send_predict_request = st.button("Отправить запрос", key="send_predict_request")
         if send_predict_request:
             logger.debug("'Predict' button clicked")
             predict_json_data = {"patients": patients}
@@ -286,19 +294,14 @@ def process_main_page():
                     write_prediction(pred)
                 elif "detail" in predict_model_result:
                     logger.debug(
-                        "Prediction result: %s", str(
-                            predict_model_result["detail"])
+                        "Prediction result: %s", str(predict_model_result["detail"])
                     )
                     st.write(f"#### {predict_model_result['detail']}")
                 else:
-                    logger.debug(
-                        "Prediction result: %s",
-                        str(predict_model_result))
+                    logger.debug("Prediction result: %s", str(predict_model_result))
                     write_prediction(predict_model_result)
             except ServerException as err:
-                logger.error(
-                    "Cant get response from API for /predict: %s",
-                    str(err))
+                logger.error("Cant get response from API for /predict: %s", str(err))
                 st.write("#### Не удалось выполнить запрос к API: ")
                 st.write(
                     str(err)
@@ -340,14 +343,11 @@ def process_main_page():
                     )
                     st.write(f"#### {predict_proba_model_result['detail']}")
                 else:
-                    probs = [row["probability"]
-                             for row in predict_proba_model_result]
+                    probs = [row["probability"] for row in predict_proba_model_result]
                     logger.debug("Prediction result: %s", str(probs))
                     write_prediction_proba(probs)
             except ServerException as err:
-                logger.error(
-                    "Cant get response from API for /predict: %s",
-                    str(err))
+                logger.error("Cant get response from API for /predict: %s", str(err))
                 st.write("#### Не удалось выполнить запрос к API: ")
                 st.write(
                     str(err)
@@ -355,8 +355,7 @@ def process_main_page():
 
     with models_expander:
         st.write("##  Получение списка всех доступных моделей и информации о них")
-        send_models_request = st.button(
-            "Отправить запрос", key="send_models_request")
+        send_models_request = st.button("Отправить запрос", key="send_models_request")
         if send_models_request:
             logger.debug("'Models' button clicked")
             st.write("Запрос отправлен!")
@@ -371,13 +370,309 @@ def process_main_page():
                 else:
                     write_models(models_result)
             except ServerException as err:
-                logger.error(
-                    "Cant get response from API for /models: %s",
-                    str(err))
+                logger.error("Cant get response from API for /models: %s", str(err))
                 st.write("#### Не удалось выполнить запрос к API: ")
                 st.write(
                     str(err)
                 )  # если не хотим выводить ошибку на клиент - закомментить эту строчку
+
+    with metrics_expander:
+        st.write("## Получение метрик качества обученных моделей")
+        is_all_models = st.checkbox("Получить метрики по всем моделям")
+        if not is_all_models:
+            model_id = st.text_input("Введите ID модели", placeholder="default_model")
+        else:
+            model_id = None
+        send_metrics_request = st.button("Отправить запрос", key="send_metrics_request")
+        if send_metrics_request:
+            if is_all_models:  # если стоит флаг "По всем моделям"
+                logger.debug("'Metrics' button clicked")
+                st.write("Запрос отправлен!")
+                try:
+                    logger.debug("'Metrics' request has been sent")
+                    metrics_result = requests.get(
+                        "http://fastapi:8000/model/all_models_metrics", timeout=10
+                    ).json()["metrics_responses"]
+                    logger.debug("Got response from API for /all_models_metrics")
+
+                    model_names = [model["model_name"] for model in metrics_result]
+                    data_metrics = [model["data_metrics"] for model in metrics_result]
+                    metrics_tabel_df = pd.concat(
+                        [
+                            pd.DataFrame(model_names, columns=["id"]),
+                            pd.DataFrame(data_metrics),
+                        ],
+                        axis=1,
+                    )
+                    st.write("#### Метрики качества")
+                    st.write(metrics_tabel_df)
+
+                    fpr_xgb, tpr_xgb = [model["fpr_xgb"] for model in metrics_result], [
+                        model["tpr_xgb"] for model in metrics_result
+                    ]
+                    fpr_lr, tpr_lr = [model["fpr_lr"] for model in metrics_result], [
+                        model["tpr_lr"] for model in metrics_result
+                    ]
+
+                    fig1 = go.Figure()
+                    fig1.add_trace(
+                        go.Scatter(
+                            x=[0, 1],
+                            y=[0, 1],
+                            mode="lines",
+                            line={"dash": 'dash'},
+                            name="Random classifier",
+                        )
+                    )
+                    fig1.update_layout(
+                        title="ROC Curve (XGBoost model)",
+                        xaxis_title="False Positive Rate",
+                        yaxis_title="True Positive Rate",
+                        xaxis={'constrain': "domain"},
+                        yaxis={'constrain': "domain"},
+                        legend={'x': 0.4, 'y': 0},
+                        showlegend=True,
+                        width=800,
+                        height=600,
+                    )
+                    for model_name, fpr, tpr in zip(model_names, fpr_xgb, tpr_xgb):
+                        fig1.add_trace(
+                            go.Scatter(x=fpr, y=tpr, mode="lines", name=model_name)
+                        )
+                    st.plotly_chart(fig1)
+
+                    fig2 = go.Figure()
+                    fig2.add_trace(
+                        go.Scatter(
+                            x=[0, 1],
+                            y=[0, 1],
+                            mode="lines",
+                            line={"dash": 'dash'},
+                            name="Random classifier",
+                        )
+                    )
+                    fig2.update_layout(
+                        title="ROC Curve (LogReg model)",
+                        xaxis_title="False Positive Rate",
+                        yaxis_title="True Positive Rate",
+                        xaxis={'constrain': "domain"},
+                        yaxis={'constrain': "domain"},
+                        legend={'x': 0.4, 'y': 0},
+                        showlegend=True,
+                        width=800,
+                        height=600,
+                    )
+                    for model_name, fpr, tpr in zip(model_names, fpr_lr, tpr_lr):
+                        fig2.add_trace(
+                            go.Scatter(x=fpr, y=tpr, mode="lines", name=model_name)
+                        )
+                    st.plotly_chart(fig2)
+
+                    precision_xgb, recall_xgb = [
+                        model["precision_xgb"] for model in metrics_result
+                    ], [model["recall_xgb"] for model in metrics_result]
+                    precision_lr, recall_lr = [
+                        model["precision_lr"] for model in metrics_result
+                    ], [model["recall_lr"] for model in metrics_result]
+
+                    fig3 = go.Figure()
+                    fig3.update_layout(
+                        title="Precision-Recall Curve (XGBoost model)",
+                        xaxis_title="Recall",
+                        yaxis_title="Precision",
+                        xaxis={'constrain': "domain"},
+                        yaxis={'constrain': "domain"},
+                        legend={'x': 0.4, 'y': 0},
+                        showlegend=True,
+                        width=800,
+                        height=600,
+                    )
+                    for model_name, precision, recall in zip(
+                        model_names, precision_xgb, recall_xgb
+                    ):
+                        fig3.add_trace(
+                            go.Scatter(
+                                x=recall, y=precision, mode="lines", name=model_name
+                            )
+                        )
+                    st.plotly_chart(fig3)
+
+                    fig4 = go.Figure()
+                    fig4.update_layout(
+                        title="Precision-Recall Curve (LogReg model)",
+                        xaxis_title="Recall",
+                        yaxis_title="Precision",
+                        xaxis={'constrain': "domain"},
+                        yaxis={'constrain': "domain"},
+                        legend={'x': 0.4, 'y': 0},
+                        showlegend=True,
+                        width=800,
+                        height=600,
+                    )
+                    for model_name, precision, recall in zip(
+                        model_names, precision_lr, recall_lr
+                    ):
+                        fig4.add_trace(
+                            go.Scatter(
+                                x=recall, y=precision, mode="lines", name=model_name
+                            )
+                        )
+                    st.plotly_chart(fig4)
+
+                except ServerException as err:
+                    logger.error(
+                        "Cant get response from API for /all_models_metrics: %s",
+                        str(err),
+                    )
+                    st.write("#### Не удалось выполнить запрос к API: ")
+                    st.write(str(err))
+            else:  # если флаг "По всем моделям" не стоит
+                if model_id == "" or model_id is None:
+                    st.write("#### Введите ID модели!")
+                else:
+                    logger.debug("'Metrics' button clicked")
+                    st.write("Запрос отправлен!")
+                    try:
+                        logger.debug("'Metrics' request has been sent")
+                        model_metrics_result = requests.get(
+                            "http://fastapi:8000/model/model_metrics/%s",
+                            model_id,
+                            timeout=10,
+                        ).json()
+                        logger.debug("Got response from API for /model_metrics")
+
+                        if "detail" in model_metrics_result:  # значит модель не найдена
+                            st.write(f"#### {model_metrics_result['detail']}")
+                        else:
+                            metrics_table_df = pd.DataFrame(
+                                model_metrics_result["data_metrics"]
+                            )
+                            st.write("#### Метрики качества")
+                            st.write(metrics_table_df)
+                            fpr_xgb, tpr_xgb = (
+                                model_metrics_result["fpr_xgb"],
+                                model_metrics_result["tpr_xgb"],
+                            )
+                            fpr_lr, tpr_lr = (
+                                model_metrics_result["fpr_lr"],
+                                model_metrics_result["tpr_lr"],
+                            )
+                            precision_xgb, recall_xgb = (
+                                model_metrics_result["precision_xgb"],
+                                model_metrics_result["recall_xgb"],
+                            )
+                            precision_lr, recall_lr = (
+                                model_metrics_result["precision_lr"],
+                                model_metrics_result["recall_lr"],
+                            )
+
+                            fig1 = go.Figure()
+                            fig1.add_trace(
+                                go.Scatter(
+                                    x=[0, 1],
+                                    y=[0, 1],
+                                    mode="lines",
+                                    line={"dash": 'dash'},
+                                    name="Random classifier",
+                                )
+                            )
+                            fig1.update_layout(
+                                title="ROC Curve (XGBoost model)",
+                                xaxis_title="False Positive Rate",
+                                yaxis_title="True Positive Rate",
+                                xaxis={'constrain': "domain"},
+                                yaxis={'constrain': "domain"},
+                                legend={'x': 0.4, 'y': 0},
+                                showlegend=True,
+                                width=800,
+                                height=600,
+                            )
+                            fig1.add_trace(
+                                go.Scatter(
+                                    x=fpr_xgb, y=tpr_xgb, mode="lines", name=model_id
+                                )
+                            )
+                            st.plotly_chart(fig1)
+
+                            fig2 = go.Figure()
+                            fig2.add_trace(
+                                go.Scatter(
+                                    x=[0, 1],
+                                    y=[0, 1],
+                                    mode="lines",
+                                    line={"dash": 'dash'},
+                                    name="Random classifier",
+                                )
+                            )
+                            fig2.update_layout(
+                                title="ROC Curve (LogReg model)",
+                                xaxis_title="False Positive Rate",
+                                yaxis_title="True Positive Rate",
+                                xaxis={'constrain': "domain"},
+                                yaxis={'constrain': "domain"},
+                                legend={'x': 0.4, 'y': 0},
+                                showlegend=True,
+                                width=800,
+                                height=600,
+                            )
+                            fig2.add_trace(
+                                go.Scatter(
+                                    x=fpr_lr, y=tpr_lr, mode="lines", name=model_id
+                                )
+                            )
+                            st.plotly_chart(fig2)
+
+                            fig3 = go.Figure()
+                            fig3.update_layout(
+                                title="Precision-Recall Curve (XGBoost model)",
+                                xaxis_title="Recall",
+                                yaxis_title="Precision",
+                                xaxis={'constrain': "domain"},
+                                yaxis={'constrain': "domain"},
+                                legend={'x': 0.4, 'y': 0},
+                                showlegend=True,
+                                width=800,
+                                height=600,
+                            )
+                            fig3.add_trace(
+                                go.Scatter(
+                                    x=recall_xgb,
+                                    y=precision_xgb,
+                                    mode="lines",
+                                    name=model_id,
+                                )
+                            )
+                            st.plotly_chart(fig3)
+
+                            fig4 = go.Figure()
+                            fig4.update_layout(
+                                title="Precision-Recall Curve (LogReg model)",
+                                xaxis_title="Recall",
+                                yaxis_title="Precision",
+                                xaxis={'constrain': "domain"},
+                                yaxis={'constrain': "domain"},
+                                legend={'x': 0.4, 'y': 0},
+                                showlegend=True,
+                                width=800,
+                                height=600,
+                            )
+                            fig4.add_trace(
+                                go.Scatter(
+                                    x=recall_lr,
+                                    y=precision_lr,
+                                    mode="lines",
+                                    name=model_id,
+                                )
+                            )
+                            st.plotly_chart(fig4)
+
+                    except ServerException as err:
+                        logger.error(
+                            "Cant get response from API for /model_metrics: %s",
+                            str(err),
+                        )
+                        st.write("#### Не удалось выполнить запрос к API: ")
+                        st.write(str(err))
 
     with participants_expander:
         st.write("## Информация об участниках проекта")
@@ -396,8 +691,7 @@ def process_main_page():
                 write_participants(participants_result)
             except ServerException as err:
                 logger.error(
-                    "Cant get response from API for /participants: %s", str(
-                        err)
+                    "Cant get response from API for /participants: %s", str(err)
                 )
                 st.write("#### Не удалось выполнить запрос к API: ")
                 st.write(
@@ -422,9 +716,7 @@ def write_prediction_proba(prediction_probs):
     """Отображение вероятностей полученных прогнозов"""
     st.write("## Вероятность поставленного диагноза")
     st.table(
-        pd.DataFrame(
-            prediction_probs,
-            columns=["Вероятность сердечного заболевания"])
+        pd.DataFrame(prediction_probs, columns=["Вероятность сердечного заболевания"])
     )
 
 
@@ -436,8 +728,7 @@ def write_participants(participants):
 
 def process_side_bar_inputs():
     """Загрузка данных из сайдбара о пациентах"""
-    st.sidebar.header(
-        "🪪 Данные о пациенте (пациентах) для постановки диагноза")
+    st.sidebar.header("🪪 Данные о пациенте (пациентах) для постановки диагноза")
     user_input_df = sidebar_input_features()
     data = [row.to_dict() for _, row in user_input_df.iterrows()]
     st.write("## 🩺 Данные пациентов")
@@ -450,8 +741,7 @@ def sidebar_input_features():
     Рендеринг формы для загрузки данных через csv файл или через выбор параметров вручную
     """
 
-    uploaded_file = st.sidebar.file_uploader(
-        label="Загрузить CSV  файл", type=["csv"])
+    uploaded_file = st.sidebar.file_uploader(label="Загрузить CSV  файл", type=["csv"])
 
     st.sidebar.markdown("**Или выставите параметры вручную**")
     age = st.sidebar.number_input("Возраст", 0, 120, 55)
@@ -466,14 +756,12 @@ def sidebar_input_features():
     gluc = st.sidebar.slider(
         "Уровень глюкозы", min_value=1, max_value=3, value=1, step=1
     )
-    smoke = st.sidebar.selectbox(
-        "Курите", ("Нет", "Да", "Не могу сказать точно"))
+    smoke = st.sidebar.selectbox("Курите", ("Нет", "Да", "Не могу сказать точно"))
     alco = st.sidebar.selectbox(
         "Употребляете алкоголь", ("Нет", "Да", "Не могу сказать точно")
     )
     active = st.sidebar.selectbox(
-        "Занимаетесь физической активностью", ("Нет",
-                                               "Да", "Не могу сказать точно")
+        "Занимаетесь физической активностью", ("Нет", "Да", "Не могу сказать точно")
     )
 
     chest_pain_type = st.sidebar.selectbox(
@@ -489,8 +777,7 @@ def sidebar_input_features():
     resting_blood_pressure = st.sidebar.number_input(
         "Артериальное давление в состоянии покоя", 80, 200, 130
     )
-    serum_cholestoral = st.sidebar.number_input(
-        "Холестерин в мг/дл)", 100, 300, 240)
+    serum_cholestoral = st.sidebar.number_input("Холестерин в мг/дл)", 100, 300, 240)
     fasting_blood_sugar = st.sidebar.selectbox(
         "Уровень сахара в крови натощак меньше 120 mg/d",
         ("Не могу сказать точно", "Нет", "Да"),
@@ -528,8 +815,7 @@ def sidebar_input_features():
     )
     thallium_stress_test = st.sidebar.selectbox(
         "Таллиевый стресс-тест",
-        ("Не могу сказать точно", "Норма",
-         "Фиксированный дефект", "Обратимый дефект"),
+        ("Не могу сказать точно", "Норма", "Фиксированный дефект", "Обратимый дефект"),
     )
 
     translation = {
