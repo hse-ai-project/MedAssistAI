@@ -115,6 +115,7 @@ class ModelsResponse(BaseModel):
     active_model_id: Optional[str]
 
 class MetricsResponse(BaseModel):
+    model_name: str
     data_metrics: dict
     fpr_xgb: List[float]
     tpr_xgb: List[float]

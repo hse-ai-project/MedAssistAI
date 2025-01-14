@@ -190,6 +190,7 @@ class ModelService:
                 data_metrics_dict[key] = clean_float_list(data_metrics_dict[key])
                 
             return MetricsResponse(
+                model_name=model_id,
                 data_metrics=data_metrics_dict,
                 fpr_xgb=clean_float_list(model.fpr_xgb.tolist()),
                 tpr_xgb=clean_float_list(model.tpr_xgb.tolist()),
@@ -215,7 +216,7 @@ class ModelService:
         try:
             metrics = []
 
-            for model_data in self.models.values():
+            for model_id, model_data in self.models.items():
                 model = model_data["model"]
 
                 def clean_float_list(float_list):
@@ -229,6 +230,7 @@ class ModelService:
                     data_metrics_dict[key] = clean_float_list(data_metrics_dict[key])
                 
                 response = MetricsResponse(
+                    model_name=model_id,
                     data_metrics=data_metrics_dict,
                     fpr_xgb=clean_float_list(model.fpr_xgb.tolist()),
                     tpr_xgb=clean_float_list(model.tpr_xgb.tolist()),
