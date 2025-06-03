@@ -48,6 +48,7 @@ def process_main_page():
     image = Image.open("data/ded.jpg")
     st.image(image)
     patients = process_side_bar_inputs()
+    prompt_expander = st.expander("User Prompt")
     fit_expander = st.expander("Fit")
     set_model_expander = st.expander("Set model")
     predict_expander = st.expander("Predict")
@@ -55,6 +56,39 @@ def process_main_page():
     models_expander = st.expander("Models")
     update_model_expander = st.expander("Update model")
     participants_expander = st.expander("Participants")
+
+    with prompt_expander:
+        st.write(
+            "## Поиск симптомов по описанию")
+        user_prompt_text = st.text_input(
+            "Укажите все свои симптомы и физические параметры",
+            placeholder="Возраст 52 года, температура 38.3, кружится голова, давление 120/70."
+        )
+        send_user_prompt_request = st.button(
+            "Отправить запрос", key="send_user_prompt_request"
+        )
+        if send_user_prompt_request:
+            logger.debug("'Prompt' button clicked")
+            prompt_json_data = {"user_prompt_text": user_prompt_text}
+            st.write("Запрос отправлен!")
+            try:
+                logger.debug("'Prompt' request has been sent")
+                user_prompt_result = requests.post(
+                    "http://fastapi:8000/model/user_prompt",
+                    json=prompt_json_data,
+                    timeout=10,
+                ).json()
+                logger.debug("Got response from API for /user_prompt")
+                st.write(user_prompt_result)
+            except ServerException as err:
+                logger.error(
+                    "Cant get response from API for /user_prompt: %s",
+                    str(err))
+                st.write("#### Не удалось выполнить запрос к API: ")
+                st.write(
+                    str(err)
+                )  # если не хотим выводить ошибку на клиент -
+                # закомментить эту строчку
 
     with fit_expander:
         st.write("## Обучить модель с заданными \
