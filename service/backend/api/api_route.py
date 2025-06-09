@@ -1,6 +1,8 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from api.model import model_desc
 from api.model_service.model_service import ModelService, setup_logger
+import time
+from api.text_processor import text_processor
 
 
 router = APIRouter()
@@ -65,3 +67,45 @@ async def update_model(model_id: str, train_data: model_desc.TrainData):
     """
     logger.debug("Got request from client to /update_model/%s", model_id)
     return model_service.update_model(model_id, train_data)
+
+
+@router.post("/predict_from_text", response_model=model_desc.TextToPredictionResponse)
+async def predict_from_text(request: model_desc.TextToPredictionRequest):
+    """
+    Полный пайплайн: текст → предсказание
+    
+    Извлекает медицинские признаки из текста и делает предсказание риска
+    """
+    logger.debug("Got request from client to /predict_from_text")
+    
+    try:
+        extracted_features = text_processor.extract_features_from_text(request.text)
+        patient_data = model_desc.PatientData(**extracted_features)
+        
+        if not model_service.active_model_id or model_service.active_model_id not in model_service.models:
+            raise HTTPException(status_code=404, detail="No active model found")
+        
+        model = model_service.models[model_service.active_model_id]["model"]
+        probability = model.predict(patient_data.to_dict())
+        
+        prediction = model_desc.PatientPrediction(
+            prediction=round(probability),
+            probability=float(probability)
+        )
+        
+        return model_desc.TextToPredictionResponse(
+            status="success",
+            prediction=prediction
+        )
+        
+    except ValueError as e:
+        return model_desc.TextToPredictionResponse(
+            status="validation_error",
+            message=str(e)
+        )
+    except Exception as e:
+        logger.error(f"Error in text-to-prediction: {e}")
+        return model_desc.TextToPredictionResponse(
+            status="error",
+            message=f"Processing failed: {str(e)}"
+        )

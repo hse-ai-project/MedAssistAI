@@ -8,6 +8,7 @@ import asyncio
 from api.model import model_desc
 import logging
 from logging.handlers import TimedRotatingFileHandler
+import os
 
 
 def setup_logger():
@@ -15,6 +16,10 @@ def setup_logger():
     logger_ = logging.getLogger("backend")
     if not logger_.hasHandlers():
         logger_.setLevel(logging.DEBUG)
+
+        log_dir = "logs"
+        os.makedirs(log_dir, exist_ok=True)
+
         handler = TimedRotatingFileHandler("logs/logs.log",
                                            when="D",
                                            interval=1)
