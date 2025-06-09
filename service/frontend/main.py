@@ -69,20 +69,44 @@ def process_main_page():
         )
         if send_user_prompt_request:
             logger.debug("'Prompt' button clicked")
-            prompt_json_data = {"user_prompt_text": user_prompt_text}
+            prompt_json_data = {"text": user_prompt_text}
             st.write("Запрос отправлен!")
             try:
                 logger.debug("'Prompt' request has been sent")
                 user_prompt_result = requests.post(
-                    "http://fastapi:8000/model/user_prompt",
+                    "http://127.0.0.1:8000/model/predict_from_text",
                     json=prompt_json_data,
                     timeout=10,
                 ).json()
-                logger.debug("Got response from API for /user_prompt")
-                st.write(user_prompt_result)
+                logger.debug("Got response from API for /predict_from_text")
+                if "prediction" in user_prompt_result:
+                    pred = [
+                        (
+                            "У вас обнаружено возможное сердечное \
+                            заболевание! Срочно обратитесь к врачу!"
+                            if user_prompt_result["prediction"]["prediction"] == 1
+                            else "У вас не выявлено сердечных заболеваний"
+                        )
+                    ]
+                    pred_proba = [
+                        str(round(user_prompt_result["prediction"]["probability"], 4))
+                    ]
+                    logger.debug("Prediction result: %s", str(pred))
+                    logger.debug("Prediction proba result: %s", str(pred_proba))
+                    write_prediction(pred)
+                    st.table(
+                        pd.DataFrame(
+                            pred_proba,
+                            columns=["Вероятность сердечного заболевания"])
+                    )
+                else:
+                    if "message" in user_prompt_result:
+                        st.write(user_prompt_result['message'])
+                    else:
+                        st.write(user_prompt_result)
             except ServerException as err:
                 logger.error(
-                    "Cant get response from API for /user_prompt: %s",
+                    "Cant get response from API for /predict_from_text: %s",
                     str(err))
                 st.write("#### Не удалось выполнить запрос к API: ")
                 st.write(
@@ -151,7 +175,7 @@ def process_main_page():
                 try:
                     logger.debug("'Fit' request has been sent")
                     fitting_result = requests.post(
-                        "http://fastapi:8000/model/fit",
+                        "http://127.0.0.1:8000/model/fit",
                         json=fit_json_data,
                         timeout=10
                     ).json()
@@ -192,7 +216,7 @@ def process_main_page():
             try:
                 logger.debug("'Set model' request has been sent")
                 set_model_result = requests.post(
-                    "http://fastapi:8000/model/set_model",
+                    "http://127.0.0.1:8000/model/set_model",
                     json=set_json_data,
                     timeout=10,
                 ).json()
@@ -269,7 +293,7 @@ def process_main_page():
                 try:
                     logger.debug("'Update model' request has been sent")
                     update_model_result = requests.post(
-                        f"http://fastapi:8000/model/update_model/{model_id}",
+                        f"http://127.0.0.1:8000/model/update_model/{model_id}",
                         json=update_json_data,
                         timeout=10,
                     ).json()
@@ -319,7 +343,7 @@ def process_main_page():
             try:
                 logger.debug("'Predict' request has been sent")
                 predict_model_result = requests.post(
-                    "http://fastapi:8000/model/predict",
+                    "http://127.0.0.1:8000/model/predict",
                     json=predict_json_data,
                     timeout=10,
                 ).json()
@@ -376,7 +400,7 @@ def process_main_page():
                     "'Predict' (for predict probability) request has been sent"
                 )
                 predict_proba_model_result = requests.post(
-                    "http://fastapi:8000/model/predict",
+                    "http://127.0.0.1:8000/model/predict",
                     json=predict_json_data,
                     timeout=10,
                 ).json()
@@ -420,7 +444,7 @@ def process_main_page():
             try:
                 logger.debug("'Models' request has been sent")
                 models_result = requests.get(
-                    "http://fastapi:8000/model/models", timeout=10
+                    "http://127.0.0.1:8000/model/models", timeout=10
                 ).json()
                 logger.debug("Got response from API for /models")
                 if "models" in models_result:
@@ -448,7 +472,7 @@ def process_main_page():
             try:
                 logger.debug("'Participants' request has been sent")
                 participants_result = requests.get(
-                    "http://fastapi:8000/participants", timeout=10
+                    "http://127.0.0.1:8000/participants", timeout=10
                 ).json()["status"]
                 logger.debug("Got response from API for /participants")
                 write_participants(participants_result)
@@ -464,7 +488,7 @@ def process_main_page():
                 # закомментить эту строчку
 
 
-# Ниже представлены функции для отрисовки полученных данных от FastAPI
+# Ниже представлены функции для отрисовки полученных данных от 127.0.0.1
 def write_models(models):
     """Отображение доступных моделей"""
     st.write("## Доступные модели")
