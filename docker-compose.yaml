@@ -6,16 +6,28 @@ services:
     networks:
       - deploy_network
     container_name: fastapi
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/docs"]
+      interval: 90s
+      timeout: 10s
+      retries: 30
+      start_period: 720s
 
   streamlit:
     build: service/frontend/
     depends_on:
-      - fastapi
+      fastapi:
+        condition: service_healthy
+    restart: on-failure
     ports:
-        - 8501:8501
+      - 8501:8501
+    environment:
+      - BACKEND_URL=http://fastapi:8000
     networks:
       - deploy_network
     container_name: streamlit
+    volumes:
+      - ./logs:/app/frontend/logs
 
 networks:
   deploy_network:

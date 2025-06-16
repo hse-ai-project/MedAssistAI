@@ -155,3 +155,13 @@ class SetModelResponse(BaseModel):
     status: str
     previous_model_id: Optional[str]
     new_model_id: str
+
+
+class TextToPredictionRequest(BaseModel):
+    text: str = Field(..., min_length=1, max_length=10000)
+
+
+class TextToPredictionResponse(BaseModel):
+    status: str
+    prediction: Optional[PatientPrediction] = None
+    message: Optional[str] = None
